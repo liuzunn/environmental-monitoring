@@ -67,7 +67,7 @@
       <!-- 右侧：实时曲线 -->
       <div class="panel trend-panel">
         <div class="panel-title">
-          <span class="title-bar"></span>实时趋势（最近 20 个数据点，5 秒刷新）
+          <span class="title-bar"></span>实时趋势（最近 40 个数据点 · 平滑曲线，5 秒刷新）
           <span class="panel-link" @click="go({ path: '/history', query: { deviceId: activeDeviceId } })">
             趋势分析
             <el-icon :size="12"><ArrowRight /></el-icon>
@@ -362,20 +362,22 @@ async function loadTrend() {
   const xAxis = []
   for (const code of codes) {
     try {
-      const rows = await getHistory({ deviceId: activeDeviceId.value, sensorCode: code, page: 1, size: 20 })
+      const rows = await getHistory({ deviceId: activeDeviceId.value, sensorCode: code, page: 1, size: 40 })
       const points = (rows.records || []).slice().reverse()
+      // 移动平均平滑：抹平上报尖刺，避免曲线直上直下
+      const smoothed = smoothValues(points, 5)
       legend.push(code)
       series.push({
         name: code,
         type: 'line',
-        smooth: true,
+        smooth: 0.6,
         showSymbol: false,
-        lineStyle: { width: 2 },
+        lineStyle: { width: 2.5 },
         itemStyle: { color: colorOf(code) },
         areaStyle: { opacity: 0.08, color: colorOf(code) },
-        data: points.map(p => [String(p.reportTime).replace('T', ' ').slice(5, 16), Number(p.value)])
+        data: smoothed.map(p => [String(p.reportTime).replace('T', ' ').slice(5, 16), Number(p.value)])
       })
-      if (xAxis.length === 0) xAxis.push(...points.map(p => String(p.reportTime).replace('T', ' ').slice(5, 16)))
+      if (xAxis.length === 0) xAxis.push(...smoothed.map(p => String(p.reportTime).replace('T', ' ').slice(5, 16)))
     } catch (e) { /* 忽略 */ }
   }
   trendChart.setOption({
@@ -395,6 +397,22 @@ async function loadTrend() {
       axisLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 11 }
     },
     series
+  })
+}
+
+/** 移动平均平滑（居中窗口）：平滑后曲线更平缓，保留整体趋势 */
+function smoothValues(rows, window = 5) {
+  const half = Math.floor(window / 2)
+  const n = rows.length
+  if (n < 3) return rows
+  return rows.map((r, i) => {
+    let sum = 0
+    let cnt = 0
+    for (let j = Math.max(0, i - half); j <= Math.min(n - 1, i + half); j++) {
+      sum += Number(rows[j].value)
+      cnt++
+    }
+    return { ...r, value: Number((sum / cnt).toFixed(2)) }
   })
 }
 
