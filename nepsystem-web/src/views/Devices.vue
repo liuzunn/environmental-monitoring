@@ -2,6 +2,7 @@
   <div class="page-container">
     <div class="head-row">
       <div>
+        <div class="section-label"><span class="num">02</span> / DEVICES</div>
         <h2 class="page-title">设备管理</h2>
         <p class="page-subtitle">管理监测设备与站点，共 {{ total }} 台</p>
       </div>

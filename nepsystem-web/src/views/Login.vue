@@ -3,15 +3,15 @@
     <!-- 背景装饰 -->
     <div class="bg-blob blob-1"></div>
     <div class="bg-blob blob-2"></div>
-    <div class="bg-blob blob-3"></div>
     <div class="bg-grid"></div>
 
     <div class="login-card">
-      <div class="app-icon">
-        <el-icon :size="34" color="#fff"><Monitor /></el-icon>
+      <div class="brand-row">
+        <span class="brand-mark"><span class="brand-core"></span></span>
+        <span class="brand-text">ENVISION</span>
       </div>
       <h1 class="title">环境监测保护系统</h1>
-      <p class="subtitle">多合一环境监测平台 · 空气 / 水质 / 噪声</p>
+      <p class="subtitle">ENVIRONMENTAL MONITORING · AIR / WATER / NOISE</p>
 
       <el-form ref="formRef" :model="form" :rules="rules" size="large" @keyup.enter="onLogin">
         <el-form-item prop="adminCode">
@@ -21,11 +21,11 @@
           <el-input v-model="form.password" type="password" placeholder="密码" show-password :prefix-icon="Lock" />
         </el-form-item>
         <el-button type="primary" class="login-btn" :loading="loading" @click="onLogin">
-          登 录
+          进 入 系 统
         </el-button>
       </el-form>
 
-      <p class="tip">默认账号：admin / 123456</p>
+      <p class="tip">默认账号 admin / 123456</p>
     </div>
   </div>
 </template>
@@ -71,66 +71,60 @@ async function onLogin() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, #eef3fb 0%, #f2f7f4 55%, #f7f4ee 100%);
+  background: var(--bg-primary);
   position: relative;
   overflow: hidden;
 }
 
-/* 装饰性模糊光斑 */
+/* 装饰性模糊光斑（克制） */
 .bg-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.55;
-  animation: float 12s ease-in-out infinite alternate;
+  filter: blur(110px);
+  opacity: 0.16;
 }
 .blob-1 {
-  width: 420px; height: 420px;
-  background: rgba(0, 122, 255, 0.28);
-  top: -120px; left: -80px;
+  width: 480px; height: 480px;
+  background: #7EE2B8;
+  top: -160px; left: -120px;
+  animation: float 14s ease-in-out infinite alternate;
 }
 .blob-2 {
-  width: 360px; height: 360px;
-  background: rgba(52, 199, 89, 0.2);
-  bottom: -100px; right: -60px;
-  animation-delay: -4s;
-}
-.blob-3 {
-  width: 300px; height: 300px;
-  background: rgba(90, 200, 250, 0.25);
-  bottom: 20%; left: 12%;
-  animation-delay: -8s;
+  width: 420px; height: 420px;
+  background: #7CA7FF;
+  bottom: -140px; right: -100px;
+  animation: float 12s ease-in-out infinite alternate-reverse;
 }
 @keyframes float {
   from { transform: translate(0, 0) scale(1); }
-  to { transform: translate(40px, -30px) scale(1.08); }
+  to { transform: translate(36px, -26px) scale(1.06); }
 }
 
-/* 极细网格纹理（shadcn 风格背景点缀） */
+/* 极细网格 */
 .bg-grid {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 30%, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 30%, transparent 75%);
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 75%);
 }
 
 .login-card {
   position: relative;
   z-index: 1;
   width: 400px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  border-radius: 24px;
-  border: 0.5px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 24px 64px rgba(31, 55, 99, 0.18);
+  background: rgba(23, 29, 27, 0.78);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-lg);
   padding: 40px 36px 28px;
   text-align: center;
-  animation: card-in 0.5s var(--ease-out);
+  animation: card-in 0.6s var(--ease-out);
 }
 
 @keyframes card-in {
@@ -138,39 +132,55 @@ async function onLogin() {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.app-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #007AFF, #0A84FF);
+.brand-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: var(--sp-24);
+}
+.brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(126, 226, 184, 0.12);
+  border: 1px solid rgba(126, 226, 184, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 16px;
-  box-shadow: 0 8px 20px rgba(0, 122, 255, 0.35);
+}
+.brand-core {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--env-green);
+  box-shadow: 0 0 12px rgba(126, 226, 184, 0.8);
+}
+.brand-text {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--text-primary);
 }
 
 .title {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 700;
-  margin: 0 0 4px;
-  color: rgba(0, 0, 0, 0.9);
+  margin: 0 0 6px;
+  color: var(--text-primary);
   letter-spacing: -0.01em;
 }
 
 .subtitle {
-  font-size: 13px;
-  color: rgba(0, 0, 0, 0.5);
-  margin: 0 0 28px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
+  margin: 0 0 32px;
 }
 
 .login-card :deep(.el-input__wrapper) {
   height: 48px;
-  border-radius: 12px;
-  background: rgba(118, 118, 128, 0.08);
-}
-.login-card :deep(.el-input__wrapper.is-focus) {
-  background: #fff;
+  border-radius: var(--radius-md);
 }
 .login-card :deep(.el-form-item) {
   margin-bottom: 18px;
@@ -179,16 +189,17 @@ async function onLogin() {
 .login-btn {
   width: 100%;
   height: 48px;
-  border-radius: 14px;
-  font-size: 16px;
+  border-radius: var(--radius-md);
+  font-size: 15px;
   font-weight: 600;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.34em;
   margin-top: 4px;
 }
 
 .tip {
-  margin-top: 20px;
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.35);
+  margin-top: 22px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
 }
 </style>

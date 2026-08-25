@@ -2,6 +2,7 @@
   <div class="page-container">
     <div class="head-row">
       <div>
+        <div class="section-label"><span class="num">05</span> / USERS</div>
         <h2 class="page-title">用户管理</h2>
         <p class="page-subtitle">系统用户维护与启停管理</p>
       </div>

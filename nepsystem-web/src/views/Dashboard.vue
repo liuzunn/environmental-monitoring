@@ -105,28 +105,49 @@
         <div class="section-label"><span class="num">03</span> / SENSOR NETWORK</div>
         <span class="panel-link" @click="go('/devices')">MANAGE DEVICES →</span>
       </div>
-      <div class="device-grid">
-        <div
-          v-for="(d, i) in devices"
-          :key="d.id"
-          class="device-card reveal"
-          :style="{ transitionDelay: (i * 70) + 'ms' }"
-          :class="{ active: d.id === activeDeviceId }"
-          @click="activeDeviceId = d.id"
-        >
-          <div class="dev-head">
-            <span class="dev-name">{{ d.deviceName }}</span>
-            <span class="dev-dot" :class="d.status === 1 ? 'online' : 'offline'"></span>
+
+      <div class="network-grid">
+        <!-- 空间视图：传感器网络分布 -->
+        <div class="spatial-panel reveal">
+          <div class="panel-head">
+            <div class="panel-label">SPATIAL VIEW</div>
+            <span class="panel-note">点击节点切换设备</span>
           </div>
-          <div class="dev-code">{{ d.deviceCode }} · {{ typeName(d.type) }}</div>
-          <div class="dev-values">
-            <div v-for="(v, code) in latestMap[d.id] || {}" :key="code" class="dev-val">
-              <span class="dev-val-code">{{ code }}</span>
-              <span class="dev-val-num tabular-nums" :class="{ over: isOverFor(d.id, code) }">{{ v }}</span>
+          <div ref="spatialChartRef" class="spatial-chart"></div>
+          <div class="spatial-legend">
+            <span class="lg"><i class="lg-dot online"></i>ONLINE</span>
+            <span class="lg"><i class="lg-dot offline"></i>OFFLINE</span>
+            <span class="lg"><i class="lg-dot selected"></i>SELECTED</span>
+          </div>
+        </div>
+
+        <!-- 设备状态卡 -->
+        <div class="device-cards-panel reveal" style="transitionDelay: 120ms">
+          <div class="panel-label">DEVICE STATUS</div>
+          <div class="device-grid">
+            <div
+              v-for="(d, i) in devices"
+              :key="d.id"
+              class="device-card"
+              :style="{ transitionDelay: (i * 70) + 'ms' }"
+              :class="{ active: d.id === activeDeviceId }"
+              @click="activeDeviceId = d.id"
+            >
+              <div class="dev-head">
+                <span class="dev-name">{{ d.deviceName }}</span>
+                <span class="dev-dot" :class="d.status === 1 ? 'online' : 'offline'"></span>
+              </div>
+              <div class="dev-code">{{ d.deviceCode }} · {{ typeName(d.type) }}</div>
+              <div class="dev-values">
+                <div v-for="(v, code) in latestMap[d.id] || {}" :key="code" class="dev-val">
+                  <span class="dev-val-code">{{ code }}</span>
+                  <span class="dev-val-num tabular-nums" :class="{ over: isOverFor(d.id, code) }">{{ v }}</span>
+                </div>
+              </div>
+              <div class="dev-link" @click.stop="go({ path: '/history', query: { deviceId: d.id } })">
+                查看历史数据 →
+              </div>
             </div>
-          </div>
-          <div class="dev-link" @click.stop="go({ path: '/history', query: { deviceId: d.id } })">
-            查看历史数据 →
           </div>
         </div>
       </div>
@@ -209,8 +230,10 @@ const gaugeRefs = {}
 let offWS = null
 const trendChartRef = ref()
 const alertTrendChartRef = ref()
+const spatialChartRef = ref()
 let trendChart = null
 let alertTrendChart = null
+let spatialChart = null
 let gaugeCharts = {}
 let timers = []
 let clockTimer = null
@@ -417,6 +440,88 @@ function colorOf(code) {
   return palette[code] || '#7CA7FF'
 }
 
+// ---------- 传感器网络空间视图 ----------
+function renderSpatial() {
+  if (!spatialChartRef.value) return
+  if (!spatialChart) {
+    spatialChart = echarts.init(spatialChartRef.value)
+    spatialChart.on('click', params => {
+      const id = params.data?.deviceId
+      if (id) activeDeviceId.value = id
+    })
+  }
+  // 按类型分列的空间抽象布局（AIR 左 / WATER 中 / NOISE 右）
+  const typeX = { AIR: 15, WATER: 50, NOISE: 85 }
+  const colCount = {}
+  const data = devices.value.map(d => {
+    const x = typeX[d.type] ?? 50
+    const idx = colCount[x] || 0
+    colCount[x] = idx + 1
+    const y = 88 - idx * 30
+    const over = Object.keys(latestMap.value[d.id] || {}).some(code => isOverFor(d.id, code))
+    return {
+      name: d.deviceName,
+      value: [x, y],
+      deviceId: d.id,
+      status: d.status,
+      over,
+      selected: d.id === activeDeviceId.value
+    }
+  })
+  spatialChart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: '#1C2421',
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.1)',
+      textStyle: { color: '#E8ECE9', fontSize: 12 },
+      formatter: p => {
+        const d = p.data
+        const st = d.status === 1 ? 'ONLINE' : 'OFFLINE'
+        return '<b>' + d.name + '</b><br/>' + d.deviceId + ' · ' + st + (d.over ? ' · <span style="color:#E26D6D">OVER</span>' : '')
+      }
+    },
+    grid: { left: 20, right: 20, top: 16, bottom: 16 },
+    xAxis: {
+      type: 'value', min: 0, max: 100, show: false,
+      splitLine: { show: false }
+    },
+    yAxis: {
+      type: 'value', min: 0, max: 100, show: false,
+      inverse: true,
+      splitLine: { show: false }
+    },
+    series: [{
+      type: 'effectScatter',
+      coordinateSystem: 'cartesian2d',
+      rippleEffect: { brushType: 'stroke', scale: 3, period: 3.5 },
+      symbolSize: v => (v[2] === undefined ? 14 : 14),
+      data: data.map(d => ({
+        name: d.name,
+        value: d.value,
+        deviceId: d.deviceId,
+        symbolSize: 14,
+        itemStyle: {
+          color: d.selected ? '#7EE2B8' : (d.over ? '#E26D6D' : (d.status === 1 ? 'rgba(126,226,184,0.85)' : '#3A423E')),
+          borderColor: d.selected ? '#9BEACA' : 'transparent',
+          borderWidth: d.selected ? 2 : 0,
+          shadowBlur: d.status === 1 ? 14 : 0,
+          shadowColor: d.over ? 'rgba(226,109,109,0.7)' : 'rgba(126,226,184,0.55)'
+        },
+        label: {
+          show: true,
+          position: 'bottom',
+          distance: 6,
+          formatter: d => d.deviceCode,
+          color: d.selected ? '#7EE2B8' : '#56615C',
+          fontSize: 10
+        }
+      }))
+    }]
+  })
+}
+
 // ---------- 滚动叙事 ----------
 function setupReveal() {
   observer = new IntersectionObserver(entries => {
@@ -439,6 +544,7 @@ function tick() {
 onMounted(async () => {
   await Promise.all([loadDevices(), loadSensors()])
   await Promise.all([loadLatest(), loadOverview(), loadUnhandled(), loadAlertTrend(), loadQuality()])
+  renderSpatial()
   timers = [
     setInterval(loadOverview, 30000),
     setInterval(loadUnhandled, 30000),
@@ -457,6 +563,7 @@ onMounted(async () => {
       latestMap.value = { ...latestMap.value, [id]: { ...(latestMap.value[id] || {}), [msg.sensorCode]: msg.value } }
       updateGauges()
       loadTrend()
+      renderSpatial()
     } else if (msg.type === 'alert') {
       loadUnhandled()
     }
@@ -466,6 +573,7 @@ onMounted(async () => {
 function onResize() {
   trendChart?.resize()
   alertTrendChart?.resize()
+  spatialChart?.resize()
   for (const c of Object.values(gaugeCharts)) c?.resize()
 }
 
@@ -477,6 +585,7 @@ onUnmounted(() => {
   if (offWS) offWS()
   trendChart?.dispose()
   alertTrendChart?.dispose()
+  spatialChart?.dispose()
   for (const c of Object.values(gaugeCharts)) c?.dispose()
 })
 </script>
@@ -839,10 +948,68 @@ onUnmounted(() => {
 .trend-chart { height: 300px; }
 
 /* ═══════════ 03 / SENSOR NETWORK ═══════════ */
+.network-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: var(--sp-24);
+  align-items: stretch;
+}
+
+.spatial-panel,
+.device-cards-panel {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-24);
+}
+
+.spatial-panel { display: flex; flex-direction: column; }
+.panel-note {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--text-faint);
+}
+.spatial-chart {
+  flex: 1;
+  min-height: 320px;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 40%, rgba(126, 226, 184, 0.04), transparent 70%),
+    var(--bg-inset);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.spatial-legend {
+  display: flex;
+  gap: var(--sp-20);
+  margin-top: var(--sp-16);
+  padding-top: var(--sp-16);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.lg {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+.lg-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.lg-dot.online { background: var(--env-green); }
+.lg-dot.offline { background: #3A423E; }
+.lg-dot.selected { background: var(--env-green); box-shadow: 0 0 0 2px rgba(126, 226, 184, 0.3); }
+
+.device-cards-panel { min-width: 0; }
+
 .device-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--sp-20);
+  gap: var(--sp-16);
 }
 
 .device-card {
@@ -1026,6 +1193,9 @@ onUnmounted(() => {
 .footer-right { letter-spacing: 0.1em; }
 
 /* ═══════════ 响应式 ═══════════ */
+@media (max-width: 1200px) {
+  .network-grid { grid-template-columns: 1fr; }
+}
 @media (max-width: 1100px) {
   .realtime-grid { grid-template-columns: 1fr; }
   .alerts-grid { grid-template-columns: 1fr; }

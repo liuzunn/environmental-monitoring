@@ -1,6 +1,7 @@
 <template>
   <div class="page-container">
     <div>
+      <div class="section-label"><span class="num">01</span> / HISTORY</div>
       <h2 class="page-title">历史数据</h2>
       <p class="page-subtitle">按设备与指标查询历史监测数据，支持趋势分析与 CSV 导出</p>
     </div>
@@ -153,26 +154,29 @@ async function loadTrend() {
   await nextTick()
   chart.resize()
   chart.setOption({
+    backgroundColor: 'transparent',
     tooltip: {
       trigger: 'axis',
-      backgroundColor: 'rgba(255,255,255,0.96)',
-      borderWidth: 0,
-      borderRadius: 10,
+      backgroundColor: '#1C2421',
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.1)',
+      borderRadius: 8,
       padding: [8, 12],
-      textStyle: { color: 'rgba(0,0,0,0.85)', fontSize: 12 },
-      axisPointer: { lineStyle: { color: 'rgba(0,0,0,0.15)' } }
+      textStyle: { color: '#E8ECE9', fontSize: 12 },
+      axisPointer: { lineStyle: { color: 'rgba(255,255,255,0.15)' } }
     },
-    legend: { data: legend, top: 0, icon: 'roundRect', itemWidth: 10, itemHeight: 10 },
+    legend: { data: legend, top: 0, icon: 'roundRect', itemWidth: 8, itemHeight: 8, textStyle: { color: '#56615C', fontSize: 10 } },
     grid: { left: 48, right: 20, top: 36, bottom: 28 },
     xAxis: {
       type: 'category', data: xAxis, boundaryGap: false,
-      axisLine: { lineStyle: { color: 'rgba(0,0,0,0.1)' } },
-      axisLabel: { color: 'rgba(0,0,0,0.45)', fontSize: 11 }
+      axisLine: { lineStyle: { color: 'rgba(255,255,255,0.12)' } },
+      axisTick: { show: false },
+      axisLabel: { color: '#56615C', fontSize: 10 }
     },
     yAxis: {
       type: 'value',
-      splitLine: { lineStyle: { color: 'rgba(0,0,0,0.06)' } },
-      axisLabel: { color: 'rgba(0,0,0,0.45)', fontSize: 11 }
+      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } },
+      axisLabel: { color: '#56615C', fontSize: 10 }
     },
     series
   }, true)
@@ -184,8 +188,8 @@ function emptyOption() {
       text: '暂无趋势数据',
       subtext: '请选择设备与指标后查看趋势',
       left: 'center', top: 'middle',
-      textStyle: { color: '#8E8E93', fontSize: 15, fontWeight: 500 },
-      subtextStyle: { color: '#AEAEB2', fontSize: 12 }
+      textStyle: { color: '#56615C', fontSize: 15, fontWeight: 500 },
+      subtextStyle: { color: '#3A423E', fontSize: 12 }
     },
     grid: {}, xAxis: { type: 'category', data: [] }, yAxis: { type: 'value' }, series: []
   }
@@ -277,6 +281,10 @@ onUnmounted(() => {
 .chart-box {
   height: 400px;
   transition: height var(--dur-slow) var(--ease-out);
+  background: var(--bg-inset);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-md);
+  padding: var(--sp-12);
 }
 
 /* 空态：收缩高度，消除大块空白 */

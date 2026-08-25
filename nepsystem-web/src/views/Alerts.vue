@@ -2,6 +2,7 @@
   <div class="page-container">
     <div class="head-row">
       <div>
+        <div class="section-label"><span class="num">03</span> / ALERTS</div>
         <h2 class="page-title">告警中心</h2>
         <p class="page-subtitle">环境异常预警与报警记录</p>
       </div>

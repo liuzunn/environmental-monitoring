@@ -2,6 +2,7 @@
   <div class="page-container">
     <div class="head-row">
       <div>
+        <div class="section-label"><span class="num">04</span> / THRESHOLDS</div>
         <h2 class="page-title">阈值设置</h2>
         <p class="page-subtitle">预警（WARN）与报警（ALARM）阈值配置，设备级优先于全局默认</p>
       </div>
