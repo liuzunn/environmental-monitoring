@@ -1,161 +1,182 @@
 <template>
-  <div class="big-screen" data-theme="dark">
-    <!-- 顶栏统计：点击跳转对应功能页 -->
-    <div class="stat-row">
-      <div
-        v-for="s in stats"
-        :key="s.label"
-        class="stat-card"
-        :style="{ '--accent': s.color }"
-        @click="go(s.to)"
-      >
-        <div class="stat-glow" :style="{ background: s.color }"></div>
-        <div class="stat-icon" :style="{ background: s.color }">
-          <el-icon :size="15" color="#fff"><component :is="s.icon" /></el-icon>
+  <div class="dashboard" data-theme="dark">
+    <!-- ═══════ 01 / HERO ═══════ -->
+    <section class="hero">
+      <div class="hero-glow"></div>
+      <div class="hero-grid-bg"></div>
+      <div class="hero-inner">
+        <div class="section-label reveal-hero d1"><span class="num">01</span> / OVERVIEW</div>
+
+        <h1 class="hero-title">
+          <span class="line reveal-hero d2">ENVIRONMENTAL</span>
+          <span class="line reveal-hero d3">MONITORING</span>
+          <span class="line accent reveal-hero d4">SYSTEM</span>
+        </h1>
+
+        <div class="hero-metric reveal-hero d5" @click="go({ path: '/history', query: { deviceId: activeDeviceId } })">
+          <div class="hero-metric-value tabular-nums">{{ qualityOverall ?? '--' }}</div>
+          <div class="hero-metric-label">AIR QUALITY INDEX</div>
+          <div class="hero-metric-hint">点击查看详情 →</div>
         </div>
-        <div class="stat-value tabular-nums" :style="{ color: s.color }">{{ s.value }}</div>
-        <div class="stat-label">
-          {{ s.label }}
-          <span class="stat-link">
-            查看
-            <el-icon :size="12"><ArrowRight /></el-icon>
+
+        <div class="hero-status reveal-hero d6">
+          <span class="live-dot"></span>
+          <span class="status-text">SYSTEM ONLINE</span>
+          <span class="status-sep"></span>
+          <span class="status-time tabular-nums">UPDATED {{ now }}</span>
+        </div>
+      </div>
+
+      <div class="scroll-hint">
+        <span class="hint-text">SCROLL TO EXPLORE</span>
+        <span class="hint-line"></span>
+      </div>
+    </section>
+
+    <!-- ═══════ 数据带：系统总览（点击跳转） ═══════ -->
+    <section class="data-strip">
+      <div v-for="(s, i) in stats" :key="s.label" class="strip-item reveal" :style="{ transitionDelay: (i * 90) + 'ms' }" @click="go(s.to)">
+        <div class="strip-value tabular-nums" :style="{ color: s.color }">{{ s.value }}</div>
+        <div class="strip-label">{{ s.label }}</div>
+        <span class="strip-arrow">→</span>
+      </div>
+    </section>
+
+    <!-- ═══════ 02 / REAL-TIME DATA ═══════ -->
+    <section class="section realtime">
+      <div class="section-head reveal">
+        <div class="section-label"><span class="num">02</span> / REAL-TIME DATA</div>
+        <div class="device-bar">
+          <span class="bar-label">监测点位</span>
+          <el-radio-group v-model="activeDeviceId" size="large">
+            <el-radio-button v-for="d in devices" :key="d.id" :value="d.id">{{ d.deviceName }}</el-radio-button>
+          </el-radio-group>
+          <span class="device-status" :class="activeDevice?.status === 1 ? 'online' : 'offline'">
+            <span class="live-dot" :class="activeDevice?.status !== 1 ? 'off' : ''"></span>
+            {{ activeDevice?.status === 1 ? 'ONLINE' : 'OFFLINE' }}
           </span>
         </div>
       </div>
-    </div>
 
-    <!-- 设备切换 -->
-    <div class="device-bar">
-      <span class="bar-label">监测点位</span>
-      <el-radio-group v-model="activeDeviceId" size="large">
-        <el-radio-button v-for="d in devices" :key="d.id" :value="d.id">
-          {{ d.deviceName }}
-        </el-radio-button>
-      </el-radio-group>
-      <el-tag v-if="activeDevice" :type="activeDevice.status === 1 ? 'success' : 'info'" round effect="dark" class="status-tag">
-        <span class="tag-dot" :class="activeDevice.status === 1 ? 'online' : 'offline'"></span>
-        {{ activeDevice.status === 1 ? '在线' : '离线' }}
-      </el-tag>
-      <span class="device-bar-link" @click="go('/devices')">
-        管理设备
-        <el-icon :size="12"><ArrowRight /></el-icon>
-      </span>
-    </div>
-
-    <div class="main-row">
-      <!-- 左侧：Gauge 仪表盘 -->
-      <div class="panel gauge-panel">
-        <div class="panel-title">
-          <span class="title-bar"></span>实时指标
-          <span class="panel-link" @click="go({ path: '/history', query: { deviceId: activeDeviceId } })">
-            历史详情
-            <el-icon :size="12"><ArrowRight /></el-icon>
-          </span>
-        </div>
-        <div class="gauge-grid">
-          <div v-for="s in activeSensors" :key="s.sensorCode" class="gauge-item">
-            <div :ref="(el) => setGaugeRef(s.sensorCode, el)" class="gauge-box"></div>
-            <div class="gauge-value">
-              <span :class="{ over: isOver(s.sensorCode) }">{{ fmtValue(s.sensorCode) }}</span>
-              <span class="gauge-unit">{{ s.unit }}</span>
+      <div class="realtime-grid">
+        <!-- 主指标：Gauge -->
+        <div class="primary-panel reveal">
+          <div class="panel-label">PRIMARY METRIC</div>
+          <div v-if="primarySensor" class="gauge-wrap">
+            <div :ref="(el) => setGaugeRef(primarySensor.sensorCode, el)" class="primary-gauge"></div>
+            <div class="gauge-under">
+              <span class="gauge-under-value tabular-nums" :class="{ over: isOver(primarySensor.sensorCode) }">
+                {{ fmtValue(primarySensor.sensorCode) }}
+              </span>
+              <span class="gauge-under-unit">{{ primarySensor.unit }}</span>
             </div>
-            <div class="gauge-name">{{ s.sensorName }}</div>
+            <div class="gauge-under-name">{{ primarySensor.sensorName }}</div>
+            <div class="gauge-standard">STANDARD ≤ {{ standards[primarySensor.sensorCode] ?? '—' }}</div>
+          </div>
+        </div>
+
+        <!-- 辅助指标 -->
+        <div class="aux-panel reveal" style="transitionDelay: 120ms">
+          <div class="panel-label">SECONDARY METRICS</div>
+          <div class="aux-grid">
+            <div v-for="s in auxSensors" :key="s.sensorCode" class="aux-item" @click="go({ path: '/history', query: { deviceId: activeDeviceId } })">
+              <div class="aux-value tabular-nums" :class="{ over: isOver(s.sensorCode) }">{{ fmtValue(s.sensorCode) }}</div>
+              <div class="aux-name">{{ s.sensorName }}</div>
+              <div class="aux-unit">{{ s.unit }}</div>
+            </div>
+            <div v-if="!auxSensors.length" class="aux-empty">选择设备查看指标</div>
+          </div>
+        </div>
+
+        <!-- 实时趋势 -->
+        <div class="trend-panel reveal" style="transitionDelay: 240ms">
+          <div class="panel-head">
+            <div class="panel-label">RECENT TREND</div>
+            <span class="panel-link" @click="go({ path: '/history', query: { deviceId: activeDeviceId } })">ANALYZE →</span>
+          </div>
+          <div ref="trendChartRef" class="trend-chart"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ 03 / SENSOR NETWORK ═══════ -->
+    <section class="section network">
+      <div class="section-head reveal">
+        <div class="section-label"><span class="num">03</span> / SENSOR NETWORK</div>
+        <span class="panel-link" @click="go('/devices')">MANAGE DEVICES →</span>
+      </div>
+      <div class="device-grid">
+        <div
+          v-for="(d, i) in devices"
+          :key="d.id"
+          class="device-card reveal"
+          :style="{ transitionDelay: (i * 70) + 'ms' }"
+          :class="{ active: d.id === activeDeviceId }"
+          @click="activeDeviceId = d.id"
+        >
+          <div class="dev-head">
+            <span class="dev-name">{{ d.deviceName }}</span>
+            <span class="dev-dot" :class="d.status === 1 ? 'online' : 'offline'"></span>
+          </div>
+          <div class="dev-code">{{ d.deviceCode }} · {{ typeName(d.type) }}</div>
+          <div class="dev-values">
+            <div v-for="(v, code) in latestMap[d.id] || {}" :key="code" class="dev-val">
+              <span class="dev-val-code">{{ code }}</span>
+              <span class="dev-val-num tabular-nums" :class="{ over: isOverFor(d.id, code) }">{{ v }}</span>
+            </div>
+          </div>
+          <div class="dev-link" @click.stop="go({ path: '/history', query: { deviceId: d.id } })">
+            查看历史数据 →
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- 右侧：实时曲线 -->
-      <div class="panel trend-panel">
-        <div class="panel-title">
-          <span class="title-bar"></span>实时趋势（最近 40 个数据点 · 平滑曲线，5 秒刷新）
-          <span class="panel-link" @click="go({ path: '/history', query: { deviceId: activeDeviceId } })">
-            趋势分析
-            <el-icon :size="12"><ArrowRight /></el-icon>
-          </span>
-        </div>
-        <div ref="trendChartRef" class="trend-chart"></div>
+    <!-- ═══════ 04 / ALERTS ═══════ -->
+    <section class="section alerts-section">
+      <div class="section-head reveal">
+        <div class="section-label"><span class="num">04</span> / ALERTS</div>
+        <span class="panel-link" @click="go('/alerts')">ALERT CENTER →</span>
       </div>
-    </div>
 
-    <div class="bottom-row">
-      <!-- 设备列表：最新值 + 超标高亮 -->
-      <div class="panel device-panel">
-        <div class="panel-title">
-          <span class="title-bar"></span>设备最新数据
-          <span class="panel-link" @click="go('/devices')">
-            设备管理
-            <el-icon :size="12"><ArrowRight /></el-icon>
-          </span>
-        </div>
-        <div class="device-grid">
-          <div
-            v-for="d in devices"
-            :key="d.id"
-            class="device-card"
-            :class="{ active: d.id === activeDeviceId }"
-            @click="activeDeviceId = d.id"
-          >
-            <div class="dev-head">
-              <span class="dev-name">{{ d.deviceName }}</span>
-              <span class="dev-dot" :class="d.status === 1 ? 'online' : 'offline'"></span>
-            </div>
-            <div class="dev-code">{{ d.deviceCode }} · {{ typeName(d.type) }}</div>
-            <div class="dev-values">
-              <div v-for="(v, code) in latestMap[d.id] || {}" :key="code" class="dev-val">
-                <span class="dev-val-code">{{ code }}</span>
-                <span class="dev-val-num tabular-nums" :class="{ over: isOverFor(d.id, code) }">{{ v }}</span>
+      <div class="alerts-grid">
+        <div class="alert-list-panel reveal">
+          <div class="alert-count-line" :class="{ has: unhandled.count > 0 }">
+            <span class="count-num tabular-nums">{{ unhandled.count }}</span>
+            ACTIVE ALERTS
+          </div>
+          <div v-if="unhandled.latest && unhandled.latest.length" class="alert-lines">
+            <div
+              v-for="a in unhandled.latest"
+              :key="a.id"
+              class="alert-line"
+              :class="a.level === 'ALARM' ? 'alarm' : 'warn'"
+              @click="go('/alerts')"
+            >
+              <span class="alert-dot"></span>
+              <div class="alert-body">
+                <div class="alert-title">{{ a.message }}</div>
+                <div class="alert-meta">{{ a.sensorCode }} · {{ fmtTime(a.createTime) }}</div>
               </div>
             </div>
-            <div class="dev-link" @click.stop="go({ path: '/history', query: { deviceId: d.id } })">
-              查看历史数据
-              <el-icon :size="11"><ArrowRight /></el-icon>
-            </div>
           </div>
+          <div v-else class="alert-empty">NO ACTIVE ALERTS — 环境状态良好</div>
         </div>
-      </div>
 
-      <!-- 告警滚动 -->
-      <div class="panel alert-panel">
-        <div class="panel-title">
-          <span class="title-bar"></span>最新告警
-          <el-tag v-if="unhandled.count > 0" type="danger" round effect="dark" size="small" class="alert-count">
-            {{ unhandled.count }} 未处理
-          </el-tag>
-          <span class="panel-link" @click="go('/alerts')">
-            告警中心
-            <el-icon :size="12"><ArrowRight /></el-icon>
-          </span>
-        </div>
-        <div v-if="unhandled.latest && unhandled.latest.length" class="alert-list">
-          <div
-            v-for="a in unhandled.latest"
-            :key="a.id"
-            class="alert-item"
-            :class="a.level === 'ALARM' ? 'alarm' : 'warn'"
-            @click="go('/alerts')"
-          >
-            <span class="alert-level" :class="a.level === 'ALARM' ? 'alarm' : 'warn'">
-              {{ a.level === 'ALARM' ? '报警' : '预警' }}
-            </span>
-            <span class="alert-msg">{{ a.message }}</span>
-            <span class="alert-time">{{ fmtTime(a.createTime) }}</span>
+        <div class="alert-trend-panel reveal" style="transitionDelay: 120ms">
+          <div class="panel-head">
+            <div class="panel-label">7-DAY ALERT TREND</div>
+            <span class="panel-link" @click="go('/alerts')">ALL →</span>
           </div>
+          <div ref="alertTrendChartRef" class="alert-trend-chart"></div>
         </div>
-        <el-empty v-else description="暂无告警" :image-size="60" />
       </div>
+    </section>
 
-      <!-- 近 7 天告警趋势 -->
-      <div class="panel alert-trend-panel">
-        <div class="panel-title">
-          <span class="title-bar"></span>近 7 天告警趋势
-          <span class="panel-link" @click="go('/alerts')">
-            全部告警
-            <el-icon :size="12"><ArrowRight /></el-icon>
-          </span>
-        </div>
-        <div ref="alertTrendChartRef" class="alert-trend-chart"></div>
-      </div>
-    </div>
+    <footer class="page-footer">
+      <span>ENVISION · ENVIRONMENTAL MONITORING SYSTEM</span>
+      <span class="footer-right">© 2026 — DATA COCKPIT</span>
+    </footer>
   </div>
 </template>
 
@@ -163,27 +184,25 @@
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
-import { getDevicesPage, getDeviceLatest, getOverview, getUnhandled, getSensors, getHistory, getAlertsStat } from '@/api'
+import { getDevicesPage, getDeviceLatest, getOverview, getUnhandled, getSensors, getHistory, getAlertsStat, getQuality } from '@/api'
 import { connectWS, onWSMessage } from '@/utils/ws'
 
 const router = useRouter()
-
-/** 跳转到功能页（query 参数让目标页预筛选） */
-function go(to) {
-  router.push(to)
-}
+function go(to) { router.push(to) }
 
 const devices = ref([])
 const sensors = ref([])
 const activeDeviceId = ref(null)
-const latestMap = ref({})       // { deviceId: { sensorCode: value } }
-const standards = ref({})       // { sensorCode: standardMax }
+const latestMap = ref({})
+const standards = ref({})
 const unhandled = ref({ count: 0, latest: [] })
+const qualityOverall = ref(null)
+const now = ref('')
 const stats = ref([
-  { label: '设备总数', value: 0, color: '#007AFF', icon: 'Monitor', to: '/devices' },
-  { label: '在线设备', value: 0, color: '#34C759', icon: 'Connection', to: { path: '/devices', query: { status: 1 } } },
-  { label: '今日上报', value: 0, color: '#5AC8FA', icon: 'DataLine', to: '/history' },
-  { label: '未处理告警', value: 0, color: '#FF3B30', icon: 'Bell', to: '/alerts' }
+  { label: '设备总数', value: 0, color: '#7CA7FF', icon: 'Monitor', to: '/devices' },
+  { label: '在线设备', value: 0, color: '#7EE2B8', icon: 'Connection', to: { path: '/devices', query: { status: 1 } } },
+  { label: '今日上报', value: 0, color: '#6FD3C7', icon: 'DataLine', to: '/history' },
+  { label: '未处理告警', value: 0, color: '#E26D6D', icon: 'Bell', to: '/alerts' }
 ])
 
 const gaugeRefs = {}
@@ -194,51 +213,39 @@ let trendChart = null
 let alertTrendChart = null
 let gaugeCharts = {}
 let timers = []
+let clockTimer = null
+let observer = null
 
 const activeDevice = computed(() => devices.value.find(d => d.id === activeDeviceId.value) || null)
 const activeSensors = computed(() => {
   if (!activeDevice.value) return []
   return sensors.value.filter(s => !s.deviceType || s.deviceType === activeDevice.value.type)
 })
+const primarySensor = computed(() => activeSensors.value[0] || null)
+const auxSensors = computed(() => activeSensors.value.slice(1))
 
-function setGaugeRef(code, el) {
-  if (el) gaugeRefs[code] = el
-}
+function setGaugeRef(code, el) { if (el) gaugeRefs[code] = el }
 
-function typeName(t) {
-  return { AIR: '空气', WATER: '水质', NOISE: '噪声' }[t] || t
-}
-
+function typeName(t) { return { AIR: '空气', WATER: '水质', NOISE: '噪声' }[t] || t }
 function fmtValue(code) {
   const v = latestMap.value[activeDeviceId.value]?.[code]
-  return v === undefined ? '--' : v
+  return v === undefined ? '--' : Number(v).toFixed(1)
 }
-
-function isOver(code) {
-  return isOverFor(activeDeviceId.value, code)
-}
-
+function isOver(code) { return isOverFor(activeDeviceId.value, code) }
 function isOverFor(deviceId, code) {
   const v = latestMap.value[deviceId]?.[code]
   const std = standards.value[code]
   return v !== undefined && std && Number(v) > Number(std)
 }
-
-function fmtTime(t) {
-  if (!t) return ''
-  return String(t).replace('T', ' ').slice(0, 16)
-}
+function fmtTime(t) { return t ? String(t).replace('T', ' ').slice(0, 16) : '' }
 
 async function loadDevices() {
   try {
     const d = await getDevicesPage({ page: 1, size: 100 })
     devices.value = d.records || []
-    if (devices.value.length && !activeDeviceId.value) {
-      activeDeviceId.value = devices.value[0].id
-    }
+    if (devices.value.length && !activeDeviceId.value) activeDeviceId.value = devices.value[0].id
   } catch (e) { /* 忽略 */ }
 }
-
 async function loadSensors() {
   try {
     const list = await getSensors()
@@ -248,23 +255,19 @@ async function loadSensors() {
     standards.value = std
   } catch (e) { /* 忽略 */ }
 }
-
 async function loadLatest() {
   for (const d of devices.value) {
     try {
       const data = await getDeviceLatest(d.id)
       const values = data.values || {}
       const map = {}
-      for (const [code, item] of Object.entries(values)) {
-        map[code] = item.value
-      }
+      for (const [code, item] of Object.entries(values)) map[code] = item.value
       latestMap.value = { ...latestMap.value, [d.id]: map }
     } catch (e) { /* 忽略 */ }
   }
   updateGauges()
   loadTrend()
 }
-
 async function loadOverview() {
   try {
     const o = await getOverview()
@@ -274,10 +277,15 @@ async function loadOverview() {
     stats.value[3].value = o.unhandledAlerts
   } catch (e) { /* 忽略 */ }
 }
-
 async function loadUnhandled() {
   try {
     unhandled.value = await getUnhandled()
+  } catch (e) { /* 忽略 */ }
+}
+async function loadQuality() {
+  try {
+    const q = await getQuality()
+    if (q && q.overall !== null && q.overall !== undefined) qualityOverall.value = q.overall
   } catch (e) { /* 忽略 */ }
 }
 
@@ -286,73 +294,64 @@ async function loadAlertTrend() {
   if (!alertTrendChartRef.value) return
   if (!alertTrendChart) alertTrendChart = echarts.init(alertTrendChartRef.value)
   let rows = []
-  try {
-    rows = (await getAlertsStat()) || []
-  } catch (e) { /* 忽略 */ }
+  try { rows = (await getAlertsStat()) || [] } catch (e) { /* 忽略 */ }
   const days = [...new Set(rows.map(r => r.day))].sort()
   const alarm = days.map(d => Number(rows.find(r => r.day === d && r.level === 'ALARM')?.cnt || 0))
   const warn = days.map(d => Number(rows.find(r => r.day === d && r.level === 'WARN')?.cnt || 0))
   alertTrendChart.setOption({
-    tooltip: {
-      trigger: 'axis',
-      backgroundColor: '#2C2C2E',
-      borderWidth: 0,
-      textStyle: { color: '#fff', fontSize: 12 }
-    },
-    legend: { data: ['报警', '预警'], textStyle: { color: 'rgba(255,255,255,0.6)', fontSize: 11 }, top: 0, icon: 'roundRect', itemWidth: 8, itemHeight: 8 },
-    grid: { left: 28, right: 8, top: 30, bottom: 24 },
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', backgroundColor: '#1C2421', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', textStyle: { color: '#E8ECE9', fontSize: 12 } },
+    legend: { data: ['ALARM', 'WARN'], textStyle: { color: '#56615C', fontSize: 10 }, top: 0, right: 0, icon: 'roundRect', itemWidth: 8, itemHeight: 8 },
+    grid: { left: 30, right: 8, top: 28, bottom: 22 },
     xAxis: {
-      type: 'category',
-      data: days.map(d => String(d).slice(5)),
-      axisLine: { lineStyle: { color: 'rgba(255,255,255,0.15)' } },
-      axisLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 10 }
+      type: 'category', data: days.map(d => String(d).slice(5)),
+      axisLine: { lineStyle: { color: 'rgba(255,255,255,0.12)' } },
+      axisTick: { show: false },
+      axisLabel: { color: '#56615C', fontSize: 10 }
     },
     yAxis: {
-      type: 'value',
-      minInterval: 1,
-      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } },
-      axisLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 10 }
+      type: 'value', minInterval: 1,
+      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } },
+      axisLabel: { color: '#56615C', fontSize: 10 }
     },
     series: [
-      { name: '报警', type: 'bar', data: alarm, barWidth: 8, itemStyle: { color: '#FF453A', borderRadius: [3, 3, 0, 0] } },
-      { name: '预警', type: 'bar', data: warn, barWidth: 8, barGap: '30%', itemStyle: { color: '#FF9F0A', borderRadius: [3, 3, 0, 0] } }
+      { name: 'ALARM', type: 'bar', data: alarm, barWidth: 7, itemStyle: { color: '#E26D6D', borderRadius: [3, 3, 0, 0] } },
+      { name: 'WARN', type: 'bar', data: warn, barWidth: 7, barGap: '30%', itemStyle: { color: '#E5B567', borderRadius: [3, 3, 0, 0] } }
     ]
   })
 }
 
-// ---------- ECharts ----------
+// ---------- Gauge ----------
 function updateGauges() {
-  if (!activeDevice.value) return
+  if (!primarySensor.value) return
+  const code = primarySensor.value.sensorCode
   nextTick(() => {
-    for (const s of activeSensors.value) {
-      const el = gaugeRefs[s.sensorCode]
-      if (!el) continue
-      const std = standards.value[s.sensorCode]
-      const max = Number(s.maxRange || (std ? std * 2 : 100))
-      if (!gaugeCharts[s.sensorCode]) {
-        gaugeCharts[s.sensorCode] = echarts.init(el)
-      }
-      const v = Number(latestMap.value[activeDeviceId.value]?.[s.sensorCode] ?? 0)
-      const over = std && v > Number(std)
-      gaugeCharts[s.sensorCode].setOption({
-        series: [{
-          type: 'gauge',
-          startAngle: 210, endAngle: -30,
-          min: 0, max,
-          progress: { show: true, width: 8, itemStyle: { color: over ? '#FF3B30' : (std ? '#007AFF' : '#34C759') } },
-          axisLine: { lineStyle: { width: 8, color: [[1, 'rgba(255,255,255,0.08)']] } },
-          axisTick: { show: false },
-          splitLine: { show: false },
-          axisLabel: { show: false },
-          pointer: { show: false },
-          detail: { show: false },
-          data: [{ value: v }]
-        }]
-      })
-    }
+    const el = gaugeRefs[code]
+    if (!el) return
+    const std = standards.value[code]
+    const max = Number(primarySensor.value.maxRange || (std ? std * 2 : 100))
+    if (!gaugeCharts[code]) gaugeCharts[code] = echarts.init(el)
+    const v = Number(latestMap.value[activeDeviceId.value]?.[code] ?? 0)
+    const over = std && v > Number(std)
+    gaugeCharts[code].setOption({
+      series: [{
+        type: 'gauge',
+        startAngle: 200, endAngle: -20,
+        min: 0, max,
+        progress: { show: true, width: 10, itemStyle: { color: over ? '#E26D6D' : (std ? '#7EE2B8' : '#6FD3C7') } },
+        axisLine: { lineStyle: { width: 10, color: [[1, 'rgba(255,255,255,0.06)']] } },
+        axisTick: { show: false },
+        splitLine: { show: false },
+        axisLabel: { show: false },
+        pointer: { show: false },
+        detail: { show: false },
+        data: [{ value: v }]
+      }]
+    })
   })
 }
 
+// ---------- 实时趋势 ----------
 async function loadTrend() {
   if (!activeDevice.value || !trendChartRef.value) return
   if (!trendChart) trendChart = echarts.init(trendChartRef.value)
@@ -364,17 +363,13 @@ async function loadTrend() {
     try {
       const rows = await getHistory({ deviceId: activeDeviceId.value, sensorCode: code, page: 1, size: 40 })
       const points = (rows.records || []).slice().reverse()
-      // 移动平均平滑：抹平上报尖刺，避免曲线直上直下
       const smoothed = smoothValues(points, 5)
       legend.push(code)
       series.push({
-        name: code,
-        type: 'line',
-        smooth: 0.6,
-        showSymbol: false,
-        lineStyle: { width: 2.5 },
+        name: code, type: 'line', smooth: 0.6, showSymbol: false,
+        lineStyle: { width: 2 },
         itemStyle: { color: colorOf(code) },
-        areaStyle: { opacity: 0.08, color: colorOf(code) },
+        areaStyle: { opacity: 0.06, color: colorOf(code) },
         data: smoothed.map(p => [String(p.reportTime).replace('T', ' ').slice(5, 16), Number(p.value)])
       })
       if (xAxis.length === 0) xAxis.push(...smoothed.map(p => String(p.reportTime).replace('T', ' ').slice(5, 16)))
@@ -382,32 +377,30 @@ async function loadTrend() {
   }
   trendChart.setOption({
     backgroundColor: 'transparent',
-    tooltip: { trigger: 'axis', backgroundColor: '#2C2C2E', borderWidth: 0, textStyle: { color: '#fff' } },
-    legend: { data: legend, textStyle: { color: 'rgba(255,255,255,0.6)', fontSize: 12 }, top: 0 },
-    grid: { left: 40, right: 16, top: 36, bottom: 24 },
+    tooltip: { trigger: 'axis', backgroundColor: '#1C2421', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', textStyle: { color: '#E8ECE9', fontSize: 12 } },
+    legend: { data: legend, textStyle: { color: '#56615C', fontSize: 10 }, top: 0, icon: 'roundRect', itemWidth: 8, itemHeight: 8 },
+    grid: { left: 42, right: 16, top: 30, bottom: 24 },
     xAxis: {
-      type: 'category',
-      data: xAxis,
-      axisLine: { lineStyle: { color: 'rgba(255,255,255,0.15)' } },
-      axisLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 11 }
+      type: 'category', data: xAxis,
+      axisLine: { lineStyle: { color: 'rgba(255,255,255,0.12)' } },
+      axisTick: { show: false },
+      axisLabel: { color: '#56615C', fontSize: 10 }
     },
     yAxis: {
       type: 'value',
-      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } },
-      axisLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 11 }
+      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } },
+      axisLabel: { color: '#56615C', fontSize: 10 }
     },
     series
   })
 }
 
-/** 移动平均平滑（居中窗口）：平滑后曲线更平缓，保留整体趋势 */
 function smoothValues(rows, window = 5) {
   const half = Math.floor(window / 2)
   const n = rows.length
   if (n < 3) return rows
   return rows.map((r, i) => {
-    let sum = 0
-    let cnt = 0
+    let sum = 0, cnt = 0
     for (let j = Math.max(0, i - half); j <= Math.min(n - 1, i + half); j++) {
       sum += Number(rows[j].value)
       cnt++
@@ -417,30 +410,51 @@ function smoothValues(rows, window = 5) {
 }
 
 function colorOf(code) {
-  const palette = { TEMP: '#FF9F0A', HUMI: '#5AC8FA', PM25: '#FF453A', CO2: '#AF52DE', PH: '#30D158', TURBIDITY: '#64D2FF', DO: '#0A84FF', NOISE: '#FFD60A' }
-  return palette[code] || '#007AFF'
+  const palette = {
+    TEMP: '#E5B567', HUMI: '#6FD3C7', PM25: '#E26D6D', CO2: '#B7A6E8',
+    PH: '#7EE2B8', TURBIDITY: '#7CA7FF', DO: '#7EE2B8', NOISE: '#E8D08A'
+  }
+  return palette[code] || '#7CA7FF'
+}
+
+// ---------- 滚动叙事 ----------
+function setupReveal() {
+  observer = new IntersectionObserver(entries => {
+    for (const en of entries) {
+      if (en.isIntersecting) {
+        en.target.classList.add('in')
+        observer.unobserve(en.target)
+      }
+    }
+  }, { threshold: 0.12 })
+  document.querySelectorAll('.dashboard .reveal, .dashboard .reveal-hero').forEach(el => observer.observe(el))
+}
+
+function tick() {
+  const d = new Date()
+  now.value = [d.getHours(), d.getMinutes(), d.getSeconds()].map(n => String(n).padStart(2, '0')).join(':')
 }
 
 // ---------- 生命周期 ----------
 onMounted(async () => {
   await Promise.all([loadDevices(), loadSensors()])
-  await Promise.all([loadLatest(), loadOverview(), loadUnhandled(), loadAlertTrend()])
+  await Promise.all([loadLatest(), loadOverview(), loadUnhandled(), loadAlertTrend(), loadQuality()])
   timers = [
     setInterval(loadOverview, 30000),
     setInterval(loadUnhandled, 30000),
-    setInterval(loadAlertTrend, 60000)
+    setInterval(loadAlertTrend, 60000),
+    setInterval(loadQuality, 60000)
   ]
+  clockTimer = setInterval(tick, 1000)
+  tick()
   window.addEventListener('resize', onResize)
+  setupReveal()
 
-  // WebSocket 实时推送：数据到达即时更新（替代 5 秒轮询）
   connectWS()
   offWS = onWSMessage(msg => {
     if (msg.type === 'data') {
       const id = msg.deviceId
-      latestMap.value = {
-        ...latestMap.value,
-        [id]: { ...(latestMap.value[id] || {}), [msg.sensorCode]: msg.value }
-      }
+      latestMap.value = { ...latestMap.value, [id]: { ...(latestMap.value[id] || {}), [msg.sensorCode]: msg.value } }
       updateGauges()
       loadTrend()
     } else if (msg.type === 'alert') {
@@ -457,7 +471,9 @@ function onResize() {
 
 onUnmounted(() => {
   timers.forEach(clearInterval)
+  clearInterval(clockTimer)
   window.removeEventListener('resize', onResize)
+  observer?.disconnect()
   if (offWS) offWS()
   trendChart?.dispose()
   alertTrendChart?.dispose()
@@ -466,289 +482,387 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.big-screen {
-  min-height: 100%;
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0, 122, 255, 0.08), transparent),
-    #000;
-  padding: 24px;
+.dashboard {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  overflow-x: hidden;
+}
+
+/* ═══════════ HERO ═══════════ */
+.hero {
+  position: relative;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  color: rgba(255, 255, 255, 0.9);
+  justify-content: center;
+  padding: 120px var(--sp-48) 80px;
+  overflow: hidden;
 }
 
-/* ---------- 统计卡片 ---------- */
-.stat-row {
+.hero-glow {
+  position: absolute;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 600px;
+  background: radial-gradient(ellipse at center, rgba(126, 226, 184, 0.07), transparent 65%);
+  pointer-events: none;
+}
+
+.hero-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000 20%, transparent 75%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-title {
+  margin: var(--sp-32) 0 var(--sp-40);
+  font-size: clamp(44px, 7vw, 88px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+}
+.hero-title .line { display: block; }
+.hero-title .accent {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(232, 236, 233, 0.45);
+}
+
+.hero-metric {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  cursor: pointer;
+  border-left: 1px solid var(--border-soft);
+  padding-left: var(--sp-24);
+  transition: border-color var(--dur-base) var(--ease-out);
+}
+.hero-metric:hover { border-color: var(--env-green); }
+
+.hero-metric-value {
+  font-size: clamp(64px, 9vw, 120px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--env-green);
+  text-shadow: 0 0 60px rgba(126, 226, 184, 0.25);
+}
+.hero-metric-label {
+  margin-top: var(--sp-12);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  color: var(--text-secondary);
+}
+.hero-metric-hint {
+  margin-top: var(--sp-8);
+  font-size: 11px;
+  color: var(--text-muted);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: all var(--dur-base) var(--ease-out);
+}
+.hero-metric:hover .hero-metric-hint { opacity: 1; transform: none; }
+
+.hero-status {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-16);
+  margin-top: var(--sp-40);
+  padding-top: var(--sp-24);
+  border-top: 1px solid var(--border-subtle);
+  max-width: 560px;
+}
+.status-text {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  color: var(--env-green);
+}
+.status-sep {
+  width: 1px;
+  height: 12px;
+  background: var(--border-soft);
+}
+.status-time {
+  font-size: var(--fs-label);
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+/* Hero 入场动画 */
+.reveal-hero {
+  opacity: 0;
+  transform: translateY(28px);
+  animation: hero-in 0.9s var(--ease-out) forwards;
+}
+.d1 { animation-delay: 0.1s; }
+.d2 { animation-delay: 0.25s; }
+.d3 { animation-delay: 0.4s; }
+.d4 { animation-delay: 0.55s; }
+.d5 { animation-delay: 0.7s; }
+.d6 { animation-delay: 0.85s; }
+@keyframes hero-in {
+  to { opacity: 1; transform: none; }
+}
+
+/* SCROLL 提示 */
+.scroll-hint {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  animation: hero-in 0.9s var(--ease-out) 1.3s forwards;
+}
+.hint-text {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
+}
+.hint-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(180deg, var(--text-faint), transparent);
+  animation: hint-drop 2.2s ease-in-out infinite;
+}
+@keyframes hint-drop {
+  0% { transform: scaleY(0); transform-origin: top; }
+  45% { transform: scaleY(1); transform-origin: top; }
+  55% { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+/* ═══════════ 数据带 ═══════════ */
+.data-strip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  margin: 0 var(--sp-48);
 }
 
-.stat-card {
+.strip-item {
   position: relative;
-  overflow: hidden;
-  background: linear-gradient(180deg, #1F1F22, #1C1C1E);
-  border-radius: 16px;
-  padding: 20px 24px;
-  border: 0.5px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-  transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+  padding: var(--sp-32) var(--sp-24);
   cursor: pointer;
+  border-right: 1px solid var(--border-subtle);
+  transition: background var(--dur-base) var(--ease-out);
 }
-.stat-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--accent);
-}
+.strip-item:last-child { border-right: none; }
+.strip-item:hover { background: rgba(255, 255, 255, 0.03); }
 
-.stat-glow {
-  position: absolute;
-  top: -30px;
-  right: -30px;
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  opacity: 0.14;
-  filter: blur(24px);
-}
-
-.stat-icon {
-  position: absolute;
-  top: 18px;
-  right: 20px;
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.9;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.stat-value {
-  font-size: 34px;
+.strip-value {
+  font-size: 44px;
   font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
+.strip-label {
+  margin-top: var(--sp-12);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+}
+.strip-arrow {
+  position: absolute;
+  top: var(--sp-24);
+  right: var(--sp-24);
+  font-size: 13px;
+  color: var(--text-faint);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: all var(--dur-base) var(--ease-out);
+}
+.strip-item:hover .strip-arrow { opacity: 1; transform: none; color: var(--env-green); }
 
-.stat-label {
+/* ═══════════ Section 通用 ═══════════ */
+.section {
+  padding: var(--sp-64) var(--sp-48);
+}
+.section-head {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
-  margin-top: 4px;
+  justify-content: space-between;
+  gap: var(--sp-24);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-40);
 }
 
-.stat-link {
-  display: inline-flex;
+.panel-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  color: var(--text-muted);
+  margin-bottom: var(--sp-16);
+}
+.panel-head {
+  display: flex;
   align-items: center;
-  gap: 2px;
+  justify-content: space-between;
+  margin-bottom: var(--sp-16);
+}
+.panel-head .panel-label { margin-bottom: 0; }
+.panel-link {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.35);
-  opacity: 0;
-  transform: translateX(-4px);
-  transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out);
 }
-.stat-card:hover .stat-link {
-  opacity: 1;
-  transform: translateX(0);
-  color: var(--accent);
-}
+.panel-link:hover { color: var(--env-green); }
 
-/* ---------- 设备切换 ---------- */
+/* ═══════════ 02 / REAL-TIME ═══════════ */
 .device-bar {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--sp-16);
   flex-wrap: wrap;
 }
-
 .bar-label {
-  font-size: 15px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.device-bar :deep(.el-radio-group) {
-  background: rgba(255, 255, 255, 0.06);
-}
-.device-bar :deep(.el-radio-button__inner) {
-  background: transparent;
-  border-color: transparent;
-  color: rgba(255, 255, 255, 0.7);
-  box-shadow: none;
-  padding: 8px 18px;
-}
-.device-bar :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
-  background: #007AFF;
-  border-color: #007AFF;
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.4);
-}
-
-.status-tag {
-  background: rgba(255, 255, 255, 0.08);
-  border: none;
-  color: rgba(255, 255, 255, 0.85);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 26px;
-}
-.tag-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-}
-.tag-dot.online { background: #30D158; box-shadow: 0 0 6px #30D158; }
-.tag-dot.offline { background: #8E8E93; }
-
-.device-bar-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
+  font-size: var(--fs-footnote);
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.55);
-  cursor: pointer;
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-  transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
 }
-.device-bar-link:hover {
-  color: #0A84FF;
-  background: rgba(0, 122, 255, 0.12);
+.device-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--env-green);
 }
+.device-status.offline { color: var(--text-muted); }
+.device-status .live-dot.off { background: var(--text-faint); animation: none; box-shadow: none; }
 
-/* ---------- 面板 ---------- */
-.main-row {
+.realtime-grid {
   display: grid;
-  grid-template-columns: 5fr 7fr;
-  gap: 20px;
-  min-height: 320px;
-}
-
-.bottom-row {
-  display: grid;
-  grid-template-columns: 4fr 3fr 3fr;
-  gap: 20px;
+  grid-template-columns: 300px 300px 1fr;
+  gap: var(--sp-24);
   align-items: stretch;
 }
 
-.panel {
-  background: linear-gradient(180deg, #1F1F22, #1C1C1E);
-  border-radius: 16px;
-  padding: 20px;
-  border: 0.5px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-  min-width: 0;
+.primary-panel,
+.aux-panel,
+.trend-panel {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-24);
 }
 
-.panel-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.gauge-wrap { text-align: center; }
+.primary-gauge { height: 170px; }
+.gauge-under { margin-top: -14px; }
+.gauge-under-value {
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--text-primary);
 }
-
-.title-bar {
-  width: 3px;
-  height: 14px;
-  border-radius: var(--radius-full);
-  background: #007AFF;
-  box-shadow: 0 0 8px rgba(0, 122, 255, 0.6);
+.gauge-under-value.over { color: var(--danger); }
+.gauge-under-unit {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-left: 6px;
 }
-
-.panel-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  margin-left: auto;
+.gauge-under-name {
+  margin-top: 2px;
   font-size: 12px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.45);
-  cursor: pointer;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-  transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+  color: var(--text-secondary);
 }
-.panel-link:hover {
-  color: #0A84FF;
-  background: rgba(0, 122, 255, 0.12);
+.gauge-standard {
+  margin-top: var(--sp-8);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
 }
 
-/* ---------- 仪表盘 ---------- */
-.gauge-grid {
+.aux-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  gap: 2px 12px;
 }
-
-.gauge-item {
+.aux-item {
+  padding: var(--sp-16) var(--sp-12);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.aux-item:hover { background: rgba(255, 255, 255, 0.04); }
+.aux-value {
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+.aux-value.over { color: var(--danger); }
+.aux-name {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.aux-unit {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.aux-empty {
+  grid-column: 1 / -1;
+  padding: var(--sp-24);
+  font-size: 12px;
+  color: var(--text-muted);
   text-align: center;
 }
 
-.gauge-box {
-  height: 130px;
-}
+.trend-panel { min-width: 0; }
+.trend-chart { height: 300px; }
 
-.gauge-value {
-  font-size: 22px;
-  font-weight: 700;
-  margin-top: -8px;
-}
-
-.gauge-value .over {
-  color: #FF453A;
-}
-
-.gauge-unit {
-  font-size: 12px;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.5);
-  margin-left: 4px;
-}
-
-.gauge-name {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
-  margin-top: 2px;
-}
-
-.trend-chart {
-  height: 280px;
-}
-
-/* ---------- 设备卡片 ---------- */
+/* ═══════════ 03 / SENSOR NETWORK ═══════════ */
 .device-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-20);
 }
 
 .device-card {
-  background: #2C2C2E;
-  border-radius: 12px;
-  padding: 14px 16px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-20);
   cursor: pointer;
-  border: 1px solid transparent;
   transition: border-color var(--dur-base) var(--ease-out),
               transform var(--dur-base) var(--ease-out),
               background var(--dur-base) var(--ease-out);
 }
 .device-card:hover {
-  transform: translateY(-1px);
-  background: #323236;
+  transform: translateY(-2px);
+  border-color: var(--border-soft);
+  background: var(--bg-elevated);
 }
 .device-card.active {
-  border-color: #007AFF;
-  background: rgba(0, 122, 255, 0.08);
+  border-color: rgba(126, 226, 184, 0.5);
+  background: rgba(126, 226, 184, 0.04);
 }
 
 .dev-head {
@@ -756,125 +870,171 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
 }
-
 .dev-name {
   font-size: 14px;
   font-weight: 600;
+  color: var(--text-primary);
 }
-
 .dev-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
 }
-
-.dev-dot.online { background: #30D158; box-shadow: 0 0 8px #30D158; }
-.dev-dot.offline { background: #8E8E93; }
+.dev-dot.online { background: var(--env-green); box-shadow: 0 0 8px rgba(126, 226, 184, 0.7); }
+.dev-dot.offline { background: var(--text-faint); }
 
 .dev-code {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
-  margin-top: 2px;
+  margin-top: 4px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
 }
 
 .dev-values {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 4px 12px;
-  margin-top: 10px;
+  gap: 6px 16px;
+  margin-top: var(--sp-16);
+  padding-top: var(--sp-16);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
-
 .dev-val {
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
+  align-items: baseline;
 }
-
 .dev-val-code {
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
 }
-
 .dev-val-num {
+  font-size: 14px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
 }
-
-.dev-val-num.over {
-  color: #FF453A;
-}
+.dev-val-num.over { color: var(--danger); }
 
 .dev-link {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  margin-top: 10px;
-  padding-top: 8px;
-  border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+  margin-top: var(--sp-16);
+  padding-top: var(--sp-12);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
   font-size: 11px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
   transition: color var(--dur-fast) var(--ease-out);
 }
-.device-card:hover .dev-link {
-  color: #0A84FF;
+.device-card:hover .dev-link { color: var(--env-green); }
+
+/* ═══════════ 04 / ALERTS ═══════════ */
+.alerts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-24);
 }
 
-/* ---------- 告警 ---------- */
-.alert-count {
-  background: rgba(255, 59, 48, 0.15);
-  color: #FF453A;
-  border: none;
+.alert-list-panel,
+.alert-trend-panel {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-24);
 }
 
-.alert-list {
+.alert-count-line {
   display: flex;
-  flex-direction: column;
+  align-items: baseline;
   gap: 10px;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  color: var(--text-muted);
+  margin-bottom: var(--sp-20);
+  padding-bottom: var(--sp-16);
+  border-bottom: 1px solid var(--border-subtle);
 }
+.alert-count-line .count-num { font-size: 30px; font-weight: 700; }
+.alert-count-line.has { color: var(--danger); }
+.alert-count-line.has .count-num { color: var(--danger); }
 
-.alert-item {
+.alert-lines { display: flex; flex-direction: column; }
+.alert-line {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #2C2C2E;
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-size: 13px;
-  border-left: 3px solid transparent;
+  align-items: flex-start;
+  gap: var(--sp-16);
+  padding: var(--sp-16) var(--sp-8);
   cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   transition: background var(--dur-fast) var(--ease-out);
 }
-.alert-item:hover { background: #323236; }
-.alert-item.alarm { border-left-color: #FF453A; }
-.alert-item.warn { border-left-color: #FF9F0A; }
+.alert-line:last-child { border-bottom: none; }
+.alert-line:hover { background: rgba(255, 255, 255, 0.03); }
 
-.alert-level {
-  flex-shrink: 0;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 999px;
-}
-
-.alert-level.alarm { background: rgba(255, 69, 58, 0.2); color: #FF453A; }
-.alert-level.warn { background: rgba(255, 159, 10, 0.2); color: #FF9F0A; }
-
-.alert-msg {
-  flex: 1;
-  color: rgba(255, 255, 255, 0.85);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.alert-time {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
+.alert-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 5px;
   flex-shrink: 0;
 }
+.alert-line.alarm .alert-dot { background: var(--danger); box-shadow: 0 0 8px rgba(226, 109, 109, 0.6); }
+.alert-line.warn .alert-dot { background: var(--warning); box-shadow: 0 0 8px rgba(229, 181, 103, 0.5); }
 
-/* ---------- 告警趋势 ---------- */
-.alert-trend-chart {
-  height: 210px;
+.alert-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.alert-meta {
+  margin-top: 3px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.alert-empty {
+  padding: var(--sp-32) 0;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.alert-trend-chart { height: 240px; }
+
+/* ═══════════ 滚动叙事 ═══════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+}
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ═══════════ 页脚 ═══════════ */
+.page-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--sp-32) var(--sp-48) var(--sp-40);
+  border-top: 1px solid var(--border-subtle);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--text-faint);
+}
+.footer-right { letter-spacing: 0.1em; }
+
+/* ═══════════ 响应式 ═══════════ */
+@media (max-width: 1100px) {
+  .realtime-grid { grid-template-columns: 1fr; }
+  .alerts-grid { grid-template-columns: 1fr; }
+  .device-grid { grid-template-columns: repeat(2, 1fr); }
+  .data-strip { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 720px) {
+  .device-grid { grid-template-columns: 1fr; }
+  .data-strip { grid-template-columns: 1fr; }
+  .section { padding: var(--sp-40) var(--sp-24); }
 }
 </style>
