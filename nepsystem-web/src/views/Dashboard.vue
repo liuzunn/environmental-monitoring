@@ -1,11 +1,26 @@
 <template>
   <div class="big-screen" data-theme="dark">
-    <!-- 顶栏统计 -->
+    <!-- 顶栏统计：点击跳转对应功能页 -->
     <div class="stat-row">
-      <div v-for="s in stats" :key="s.label" class="stat-card" :style="{ '--accent': s.color }">
+      <div
+        v-for="s in stats"
+        :key="s.label"
+        class="stat-card"
+        :style="{ '--accent': s.color }"
+        @click="go(s.to)"
+      >
         <div class="stat-glow" :style="{ background: s.color }"></div>
+        <div class="stat-icon" :style="{ background: s.color }">
+          <el-icon :size="15" color="#fff"><component :is="s.icon" /></el-icon>
+        </div>
         <div class="stat-value tabular-nums" :style="{ color: s.color }">{{ s.value }}</div>
-        <div class="stat-label">{{ s.label }}</div>
+        <div class="stat-label">
+          {{ s.label }}
+          <span class="stat-link">
+            查看
+            <el-icon :size="12"><ArrowRight /></el-icon>
+          </span>
+        </div>
       </div>
     </div>
 
@@ -21,6 +36,10 @@
         <span class="tag-dot" :class="activeDevice.status === 1 ? 'online' : 'offline'"></span>
         {{ activeDevice.status === 1 ? '在线' : '离线' }}
       </el-tag>
+      <span class="device-bar-link" @click="go('/devices')">
+        管理设备
+        <el-icon :size="12"><ArrowRight /></el-icon>
+      </span>
     </div>
 
     <div class="main-row">
@@ -28,6 +47,10 @@
       <div class="panel gauge-panel">
         <div class="panel-title">
           <span class="title-bar"></span>实时指标
+          <span class="panel-link" @click="go({ path: '/history', query: { deviceId: activeDeviceId } })">
+            历史详情
+            <el-icon :size="12"><ArrowRight /></el-icon>
+          </span>
         </div>
         <div class="gauge-grid">
           <div v-for="s in activeSensors" :key="s.sensorCode" class="gauge-item">
@@ -45,6 +68,10 @@
       <div class="panel trend-panel">
         <div class="panel-title">
           <span class="title-bar"></span>实时趋势（最近 20 个数据点，5 秒刷新）
+          <span class="panel-link" @click="go({ path: '/history', query: { deviceId: activeDeviceId } })">
+            趋势分析
+            <el-icon :size="12"><ArrowRight /></el-icon>
+          </span>
         </div>
         <div ref="trendChartRef" class="trend-chart"></div>
       </div>
@@ -55,9 +82,19 @@
       <div class="panel device-panel">
         <div class="panel-title">
           <span class="title-bar"></span>设备最新数据
+          <span class="panel-link" @click="go('/devices')">
+            设备管理
+            <el-icon :size="12"><ArrowRight /></el-icon>
+          </span>
         </div>
         <div class="device-grid">
-          <div v-for="d in devices" :key="d.id" class="device-card" :class="{ active: d.id === activeDeviceId }" @click="activeDeviceId = d.id">
+          <div
+            v-for="d in devices"
+            :key="d.id"
+            class="device-card"
+            :class="{ active: d.id === activeDeviceId }"
+            @click="activeDeviceId = d.id"
+          >
             <div class="dev-head">
               <span class="dev-name">{{ d.deviceName }}</span>
               <span class="dev-dot" :class="d.status === 1 ? 'online' : 'offline'"></span>
@@ -68,6 +105,10 @@
                 <span class="dev-val-code">{{ code }}</span>
                 <span class="dev-val-num tabular-nums" :class="{ over: isOverFor(d.id, code) }">{{ v }}</span>
               </div>
+            </div>
+            <div class="dev-link" @click.stop="go({ path: '/history', query: { deviceId: d.id } })">
+              查看历史数据
+              <el-icon :size="11"><ArrowRight /></el-icon>
             </div>
           </div>
         </div>
@@ -80,9 +121,19 @@
           <el-tag v-if="unhandled.count > 0" type="danger" round effect="dark" size="small" class="alert-count">
             {{ unhandled.count }} 未处理
           </el-tag>
+          <span class="panel-link" @click="go('/alerts')">
+            告警中心
+            <el-icon :size="12"><ArrowRight /></el-icon>
+          </span>
         </div>
         <div v-if="unhandled.latest && unhandled.latest.length" class="alert-list">
-          <div v-for="a in unhandled.latest" :key="a.id" class="alert-item" :class="a.level === 'ALARM' ? 'alarm' : 'warn'">
+          <div
+            v-for="a in unhandled.latest"
+            :key="a.id"
+            class="alert-item"
+            :class="a.level === 'ALARM' ? 'alarm' : 'warn'"
+            @click="go('/alerts')"
+          >
             <span class="alert-level" :class="a.level === 'ALARM' ? 'alarm' : 'warn'">
               {{ a.level === 'ALARM' ? '报警' : '预警' }}
             </span>
@@ -92,15 +143,35 @@
         </div>
         <el-empty v-else description="暂无告警" :image-size="60" />
       </div>
+
+      <!-- 近 7 天告警趋势 -->
+      <div class="panel alert-trend-panel">
+        <div class="panel-title">
+          <span class="title-bar"></span>近 7 天告警趋势
+          <span class="panel-link" @click="go('/alerts')">
+            全部告警
+            <el-icon :size="12"><ArrowRight /></el-icon>
+          </span>
+        </div>
+        <div ref="alertTrendChartRef" class="alert-trend-chart"></div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
-import { getDevicesPage, getDeviceLatest, getOverview, getUnhandled, getSensors, getHistory } from '@/api'
+import { getDevicesPage, getDeviceLatest, getOverview, getUnhandled, getSensors, getHistory, getAlertsStat } from '@/api'
 import { connectWS, onWSMessage } from '@/utils/ws'
+
+const router = useRouter()
+
+/** 跳转到功能页（query 参数让目标页预筛选） */
+function go(to) {
+  router.push(to)
+}
 
 const devices = ref([])
 const sensors = ref([])
@@ -109,16 +180,18 @@ const latestMap = ref({})       // { deviceId: { sensorCode: value } }
 const standards = ref({})       // { sensorCode: standardMax }
 const unhandled = ref({ count: 0, latest: [] })
 const stats = ref([
-  { label: '设备总数', value: 0, color: '#007AFF' },
-  { label: '在线设备', value: 0, color: '#34C759' },
-  { label: '今日上报', value: 0, color: '#5AC8FA' },
-  { label: '未处理告警', value: 0, color: '#FF3B30' }
+  { label: '设备总数', value: 0, color: '#007AFF', icon: 'Monitor', to: '/devices' },
+  { label: '在线设备', value: 0, color: '#34C759', icon: 'Connection', to: { path: '/devices', query: { status: 1 } } },
+  { label: '今日上报', value: 0, color: '#5AC8FA', icon: 'DataLine', to: '/history' },
+  { label: '未处理告警', value: 0, color: '#FF3B30', icon: 'Bell', to: '/alerts' }
 ])
 
 const gaugeRefs = {}
 let offWS = null
 const trendChartRef = ref()
+const alertTrendChartRef = ref()
 let trendChart = null
+let alertTrendChart = null
 let gaugeCharts = {}
 let timers = []
 
@@ -208,6 +281,45 @@ async function loadUnhandled() {
   } catch (e) { /* 忽略 */ }
 }
 
+// ---------- 近 7 天告警趋势 ----------
+async function loadAlertTrend() {
+  if (!alertTrendChartRef.value) return
+  if (!alertTrendChart) alertTrendChart = echarts.init(alertTrendChartRef.value)
+  let rows = []
+  try {
+    rows = (await getAlertsStat()) || []
+  } catch (e) { /* 忽略 */ }
+  const days = [...new Set(rows.map(r => r.day))].sort()
+  const alarm = days.map(d => Number(rows.find(r => r.day === d && r.level === 'ALARM')?.cnt || 0))
+  const warn = days.map(d => Number(rows.find(r => r.day === d && r.level === 'WARN')?.cnt || 0))
+  alertTrendChart.setOption({
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: '#2C2C2E',
+      borderWidth: 0,
+      textStyle: { color: '#fff', fontSize: 12 }
+    },
+    legend: { data: ['报警', '预警'], textStyle: { color: 'rgba(255,255,255,0.6)', fontSize: 11 }, top: 0, icon: 'roundRect', itemWidth: 8, itemHeight: 8 },
+    grid: { left: 28, right: 8, top: 30, bottom: 24 },
+    xAxis: {
+      type: 'category',
+      data: days.map(d => String(d).slice(5)),
+      axisLine: { lineStyle: { color: 'rgba(255,255,255,0.15)' } },
+      axisLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 10 }
+    },
+    yAxis: {
+      type: 'value',
+      minInterval: 1,
+      splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } },
+      axisLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 10 }
+    },
+    series: [
+      { name: '报警', type: 'bar', data: alarm, barWidth: 8, itemStyle: { color: '#FF453A', borderRadius: [3, 3, 0, 0] } },
+      { name: '预警', type: 'bar', data: warn, barWidth: 8, barGap: '30%', itemStyle: { color: '#FF9F0A', borderRadius: [3, 3, 0, 0] } }
+    ]
+  })
+}
+
 // ---------- ECharts ----------
 function updateGauges() {
   if (!activeDevice.value) return
@@ -294,10 +406,11 @@ function colorOf(code) {
 // ---------- 生命周期 ----------
 onMounted(async () => {
   await Promise.all([loadDevices(), loadSensors()])
-  await Promise.all([loadLatest(), loadOverview(), loadUnhandled()])
+  await Promise.all([loadLatest(), loadOverview(), loadUnhandled(), loadAlertTrend()])
   timers = [
     setInterval(loadOverview, 30000),
-    setInterval(loadUnhandled, 30000)
+    setInterval(loadUnhandled, 30000),
+    setInterval(loadAlertTrend, 60000)
   ]
   window.addEventListener('resize', onResize)
 
@@ -320,6 +433,7 @@ onMounted(async () => {
 
 function onResize() {
   trendChart?.resize()
+  alertTrendChart?.resize()
   for (const c of Object.values(gaugeCharts)) c?.resize()
 }
 
@@ -328,6 +442,7 @@ onUnmounted(() => {
   window.removeEventListener('resize', onResize)
   if (offWS) offWS()
   trendChart?.dispose()
+  alertTrendChart?.dispose()
   for (const c of Object.values(gaugeCharts)) c?.dispose()
 })
 </script>
@@ -361,6 +476,7 @@ onUnmounted(() => {
   border: 0.5px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
   transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+  cursor: pointer;
 }
 .stat-card:hover {
   transform: translateY(-2px);
@@ -378,6 +494,20 @@ onUnmounted(() => {
   filter: blur(24px);
 }
 
+.stat-icon {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 .stat-value {
   font-size: 34px;
   font-weight: 700;
@@ -386,9 +516,28 @@ onUnmounted(() => {
 }
 
 .stat-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 13px;
   color: rgba(255, 255, 255, 0.5);
   margin-top: 4px;
+}
+
+.stat-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+}
+.stat-card:hover .stat-link {
+  opacity: 1;
+  transform: translateX(0);
+  color: var(--accent);
 }
 
 /* ---------- 设备切换 ---------- */
@@ -439,6 +588,23 @@ onUnmounted(() => {
 .tag-dot.online { background: #30D158; box-shadow: 0 0 6px #30D158; }
 .tag-dot.offline { background: #8E8E93; }
 
+.device-bar-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+.device-bar-link:hover {
+  color: #0A84FF;
+  background: rgba(0, 122, 255, 0.12);
+}
+
 /* ---------- 面板 ---------- */
 .main-row {
   display: grid;
@@ -449,8 +615,9 @@ onUnmounted(() => {
 
 .bottom-row {
   display: grid;
-  grid-template-columns: 7fr 5fr;
+  grid-template-columns: 4fr 3fr 3fr;
   gap: 20px;
+  align-items: stretch;
 }
 
 .panel {
@@ -459,6 +626,7 @@ onUnmounted(() => {
   padding: 20px;
   border: 0.5px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  min-width: 0;
 }
 
 .panel-title {
@@ -477,6 +645,24 @@ onUnmounted(() => {
   border-radius: var(--radius-full);
   background: #007AFF;
   box-shadow: 0 0 8px rgba(0, 122, 255, 0.6);
+}
+
+.panel-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+.panel-link:hover {
+  color: #0A84FF;
+  background: rgba(0, 122, 255, 0.12);
 }
 
 /* ---------- 仪表盘 ---------- */
@@ -524,7 +710,7 @@ onUnmounted(() => {
 /* ---------- 设备卡片 ---------- */
 .device-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 
@@ -599,6 +785,22 @@ onUnmounted(() => {
   color: #FF453A;
 }
 
+.dev-link {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.35);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.device-card:hover .dev-link {
+  color: #0A84FF;
+}
+
 /* ---------- 告警 ---------- */
 .alert-count {
   background: rgba(255, 59, 48, 0.15);
@@ -621,6 +823,7 @@ onUnmounted(() => {
   padding: 10px 12px;
   font-size: 13px;
   border-left: 3px solid transparent;
+  cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out);
 }
 .alert-item:hover { background: #323236; }
@@ -650,5 +853,10 @@ onUnmounted(() => {
   font-size: 11px;
   color: rgba(255, 255, 255, 0.4);
   flex-shrink: 0;
+}
+
+/* ---------- 告警趋势 ---------- */
+.alert-trend-chart {
+  height: 210px;
 }
 </style>

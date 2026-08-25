@@ -67,6 +67,7 @@
 
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
 import { getAlertsPage, handleAlert, getUnhandled, getDevicesPage, getSensors } from '@/api'
@@ -122,6 +123,11 @@ onMounted(async () => {
   const [d, s] = await Promise.all([getDevicesPage({ page: 1, size: 100 }), getSensors()])
   devices.value = d.records || []
   sensors.value = s || []
+  // 支持从大屏跳转带筛选：/alerts?level=ALARM&status=0&deviceId=1
+  const q = useRoute().query
+  if (q.level) query.level = String(q.level)
+  if (q.status !== undefined) query.status = Number(q.status)
+  if (q.deviceId !== undefined) query.deviceId = Number(q.deviceId)
   load()
   loadUnhandled()
 })

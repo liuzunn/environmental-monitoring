@@ -70,6 +70,7 @@
 
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { Search, Download } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 import { getDevicesPage, getHistory, getTrend, getSensors, exportCsv } from '@/api'
@@ -198,7 +199,16 @@ onMounted(async () => {
   const [d, s] = await Promise.all([getDevicesPage({ page: 1, size: 100 }), getSensors()])
   devices.value = d.records || []
   sensors.value = s || []
-  if (devices.value.length) query.value.deviceId = devices.value[0].id
+  // 支持从大屏跳转带筛选：/history?deviceId=1&sensorCodes=TEMP,HUMI
+  const q = useRoute().query
+  if (q.deviceId !== undefined && q.deviceId !== '') {
+    query.value.deviceId = Number(q.deviceId)
+  } else if (devices.value.length) {
+    query.value.deviceId = devices.value[0].id
+  }
+  if (q.sensorCodes) {
+    query.value.sensorCodes = String(q.sensorCodes).split(',').filter(Boolean)
+  }
   await loadAll()
   window.addEventListener('resize', onResize)
 })

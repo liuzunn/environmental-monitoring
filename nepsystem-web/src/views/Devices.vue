@@ -89,6 +89,7 @@
 
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Search, Refresh } from '@element-plus/icons-vue'
 import { getDevicesPage, addDevice, updateDevice, deleteDevice } from '@/api'
@@ -166,7 +167,12 @@ async function onDelete(row) {
   }).catch(() => {})
 }
 
-onMounted(load)
+onMounted(() => {
+  // 支持从大屏跳转带筛选：/devices?status=1（在线设备）
+  const q = useRoute().query
+  if (q.status !== undefined) query.status = Number(q.status)
+  load()
+})
 </script>
 
 <style scoped>
