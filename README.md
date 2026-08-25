@@ -161,11 +161,6 @@ cd nepsystem && powershell -ExecutionPolicy Bypass -File e2e-test.ps1
 - [UI 重构审计](./PROJECT_UI_AUDIT.md)
 - [MQTT 硬件接入](./nepsystem/README-MQTT.md)
 
-## 🔑 安全说明
-
-- 数据库密码、令牌等敏感配置一律放入本地 `application.properties`（已被 gitignore 忽略），仓库仅提供 `application.example.properties` 模板
-- 登录令牌存储于 localStorage（键 `nep_token`），请求头 `Authorization: Bearer <token>`
-
 ## 📄 License
 
 MIT License — 仅限学习交流使用
