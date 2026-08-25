@@ -5,45 +5,41 @@
       <p class="page-subtitle">按设备与指标查询历史监测数据，支持趋势分析与 CSV 导出</p>
     </div>
 
-    <!-- 筛选器 -->
-    <div class="apple-card filter-card">
-      <el-form inline :model="query" label-width="70px">
-        <el-form-item label="设备">
-          <el-select v-model="query.deviceId" placeholder="选择设备" style="width: 220px" clearable @change="loadAll">
+    <!-- 筛选 + 趋势图（同一卡片：筛选为卡片工具条） -->
+    <div class="apple-card trend-card">
+      <div class="trend-head">
+        <div class="trend-title">
+          <span class="title-bar"></span>趋势分析
+        </div>
+        <div class="filter-bar">
+          <el-select v-model="query.deviceId" placeholder="选择设备" style="width: 200px" clearable @change="loadAll">
             <el-option v-for="d in devices" :key="d.id" :label="d.deviceName" :value="d.id" />
           </el-select>
-        </el-form-item>
-        <el-form-item label="指标">
-          <el-select v-model="query.sensorCodes" multiple placeholder="多选指标" style="width: 260px" collapse-tags>
+          <el-select v-model="query.sensorCodes" multiple placeholder="多选指标" style="width: 230px" collapse-tags>
             <el-option v-for="s in sensors" :key="s.sensorCode" :label="s.sensorName + ' (' + s.sensorCode + ')'" :value="s.sensorCode" />
           </el-select>
-        </el-form-item>
-        <el-form-item label="时间">
           <el-date-picker
             v-model="range"
             type="datetimerange"
             range-separator="至"
             start-placeholder="开始时间"
             end-placeholder="结束时间"
-            style="width: 380px"
+            style="width: 340px"
             value-format="YYYY-MM-DD HH:mm:ss"
           />
-        </el-form-item>
-        <el-form-item>
           <el-button type="primary" :icon="Search" @click="loadAll">查询</el-button>
           <el-button :icon="Download" @click="onExport">导出 CSV</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
-
-    <!-- 趋势图 -->
-    <div class="apple-card">
-      <div class="chart-box" ref="chartRef"></div>
+        </div>
+      </div>
+      <div class="chart-box" :class="{ 'is-empty': !hasTrend }" ref="chartRef"></div>
     </div>
 
     <!-- 明细表格 -->
-    <div class="apple-card">
-      <el-table :data="rows" v-loading="loading" stripe>
+    <div class="apple-card table-card">
+      <div class="table-title">
+        <span class="title-bar"></span>数据明细
+      </div>
+      <el-table :data="rows" v-loading="loading">
         <el-table-column prop="deviceId" label="设备ID" width="90" />
         <el-table-column prop="sensorCode" label="指标" width="110">
           <template #default="{ row }">
@@ -87,6 +83,9 @@ const loading = ref(false)
 const chartRef = ref()
 let chart = null
 
+/** 是否具备趋势图数据条件（避免未选择时渲染 320px 大空白） */
+const hasTrend = computed(() => !!query.value.deviceId && query.value.sensorCodes.length > 0)
+
 const standards = computed(() => {
   const m = {}
   for (const s of sensors.value) m[s.sensorCode] = s.standardMax
@@ -125,11 +124,15 @@ async function loadRows() {
 }
 
 async function loadTrend() {
-  if (!query.value.deviceId || query.value.sensorCodes.length === 0) {
-    if (chart) { chart.clear(); chart.setOption(emptyOption()) }
+  if (!chart) chart = echarts.init(chartRef.value)
+  if (!hasTrend.value) {
+    // 空态：紧凑提示，容器高度收缩为 120px，避免大块空白
+    chart.clear()
+    chart.setOption(emptyOption())
+    await nextTick()
+    chart.resize()
     return
   }
-  if (!chart) chart = echarts.init(chartRef.value)
   const series = []
   const xAxis = []
   const legend = []
@@ -145,6 +148,9 @@ async function loadTrend() {
       data: pts
     })
   }
+  // 容器高度可能在空态/数据态间切换，先等 DOM 高度变化再重绘
+  await nextTick()
+  chart.resize()
   chart.setOption({
     tooltip: {
       trigger: 'axis',
@@ -173,7 +179,13 @@ async function loadTrend() {
 
 function emptyOption() {
   return {
-    title: { text: '请选择设备与指标后查看趋势', left: 'center', top: 'middle', textStyle: { color: '#AEAEB2', fontSize: 14, fontWeight: 400 } },
+    title: {
+      text: '暂无趋势数据',
+      subtext: '请选择设备与指标后查看趋势',
+      left: 'center', top: 'middle',
+      textStyle: { color: '#8E8E93', fontSize: 15, fontWeight: 500 },
+      subtextStyle: { color: '#AEAEB2', fontSize: 12 }
+    },
     grid: {}, xAxis: { type: 'category', data: [] }, yAxis: { type: 'value' }, series: []
   }
 }
@@ -224,20 +236,68 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.filter-card {
+/* 趋势卡片：筛选工具条 + 图表一体 */
+.trend-card {
+  padding: var(--sp-20);
+}
+
+.trend-head {
   display: flex;
   align-items: center;
-  box-shadow: var(--shadow-sm);
+  justify-content: space-between;
+  gap: var(--sp-16);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-16);
 }
-.filter-card :deep(.el-form-item__label) {
-  color: var(--text-sub);
+
+.trend-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-subhead);
+  font-weight: var(--fw-semibold);
+  color: var(--text-main);
+  white-space: nowrap;
 }
-.filter-card :deep(.el-form-item) {
-  margin-bottom: 0;
+
+.title-bar {
+  width: 3px;
+  height: 14px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
 }
+
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .chart-box {
   height: 320px;
+  transition: height var(--dur-slow) var(--ease-out);
 }
+
+/* 空态：收缩高度，消除大块空白 */
+.chart-box.is-empty {
+  height: 120px;
+}
+
+/* 明细表格卡片 */
+.table-card {
+  padding: var(--sp-20);
+}
+
+.table-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-subhead);
+  font-weight: var(--fw-semibold);
+  color: var(--text-main);
+  margin-bottom: var(--sp-12);
+}
+
 .over {
   color: #FF3B30;
   font-weight: 600;
