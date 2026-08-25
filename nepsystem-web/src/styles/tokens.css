@@ -1,173 +1,221 @@
 /* ============================================================
-   设计令牌（苹果风设计规范.md × shadcn/ui 主题体系）
-   - 字体层级 / 8pt 间距网格 / 圆角阴影 / 系统色板（Apple）
-   - 语义分层 / 焦点环 / 动效令牌（shadcn/ui theming 思路：
-     背景分层表达层级、低对比边框、克制的阴影、可见焦点环）
+   ENVISION — 环境数据驾驶舱 Design Token
+   深色 / 极简 / 空间 / Editorial / Industrial
+   设计语言：Eraf Portfolio × Apple 空间感 × 工业数据可视化
    ============================================================ */
+
 :root {
-  /* 字体层级 */
-  --fs-large-title: 34px;
-  --fs-title-1: 28px;
+  /* ---------- 背景分层（Spatial Layering） ---------- */
+  --bg-primary: #0A0D0C;        /* 页面底色（最深） */
+  --bg-secondary: #111615;      /* 次级区域 / Hero 下沿 */
+  --bg-tertiary: #171D1B;       /* 面板 / 区块 */
+  --bg-elevated: #1C2421;       /* 悬浮 / hover */
+  --bg-inset: #0D110F;          /* 内嵌区域（图表底） */
+
+  /* ---------- 文字层级 ---------- */
+  --text-primary: #E8ECE9;
+  --text-secondary: #89938E;
+  --text-muted: #56615C;
+  --text-faint: #3A423E;
+
+  /* ---------- 边框 ---------- */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-soft: rgba(255, 255, 255, 0.14);
+  --border-strong: rgba(255, 255, 255, 0.22);
+
+  /* ---------- 语义色（服务于状态/数据，不做装饰） ---------- */
+  --env-green: #7EE2B8;         /* 正常 / 达标 / 在线 */
+  --env-green-dim: rgba(126, 226, 184, 0.12);
+  --warning: #E5B567;           /* 预警 WARN */
+  --warning-dim: rgba(229, 181, 103, 0.12);
+  --danger: #E26D6D;            /* 报警 ALARM / 危险 */
+  --danger-dim: rgba(226, 109, 109, 0.12);
+  --info: #7CA7FF;              /* 信息 / 辅助 */
+  --info-dim: rgba(124, 167, 255, 0.12);
+  --cyan: #6FD3C7;              /* 图表辅助色 */
+
+  /* 语义映射（兼容既有代码） */
+  --color-primary: var(--env-green);
+  --color-primary-hover: #9BEACA;
+  --color-primary-active: #5CCBA0;
+  --color-primary-soft: rgba(126, 226, 184, 0.1);
+  --color-green: var(--env-green);
+  --color-red: var(--danger);
+  --color-orange: var(--warning);
+  --color-yellow: #E8D08A;
+  --color-purple: #B7A6E8;
+  --color-cyan: var(--cyan);
+  --color-pink: #E88FB0;
+
+  /* 灰阶映射 */
+  --bg-page: var(--bg-primary);
+  --bg-card: var(--bg-tertiary);
+  --bg-muted: var(--bg-secondary);
+  --bg-subtle: var(--bg-elevated);
+  --text-main: var(--text-primary);
+  --text-sub: var(--text-secondary);
+  --text-placeholder: var(--text-muted);
+  --border-hairline: var(--border-subtle);
+  --border-default: var(--border-soft);
+  --fill-secondary: rgba(255, 255, 255, 0.06);
+  --fill-tertiary: rgba(255, 255, 255, 0.04);
+
+  /* ---------- 字体层级（Editorial） ---------- */
+  --fs-display: 72px;           /* Hero 主数字 */
+  --fs-hero: 56px;              /* Hero 标题 */
+  --fs-large-title: 40px;
+  --fs-title-1: 30px;
   --fs-title-2: 22px;
-  --fs-title-3: 20px;
-  --fs-headline: 17px;
-  --fs-body: 17px;
-  --fs-callout: 16px;
-  --fs-subhead: 15px;
-  --fs-footnote: 13px;
-  --fs-caption-1: 12px;
-  --fs-caption-2: 11px;
+  --fs-title-3: 18px;
+  --fs-headline: 16px;
+  --fs-body: 15px;
+  --fs-callout: 14px;
+  --fs-subhead: 13px;
+  --fs-footnote: 12px;
+  --fs-caption-1: 11px;
+  --fs-caption-2: 10px;
   --fw-regular: 400;
   --fw-medium: 500;
   --fw-semibold: 600;
   --fw-bold: 700;
 
-  /* 间距（8pt 网格） */
-  --sp-4: 4px;
-  --sp-8: 8px;
-  --sp-12: 12px;
-  --sp-16: 16px;
-  --sp-20: 20px;
-  --sp-24: 24px;
-  --sp-32: 32px;
-  --sp-40: 40px;
+  /* Editorial 标签（section 编号 / 小标题） */
+  --fs-label: 11px;
+  --tracking-label: 0.22em;     /* 大写标签字距 */
 
-  /* 圆角与阴影（shadcn：radius 基准 + 派生；阴影低存在感） */
+  /* ---------- 间距（8pt 网格） ---------- */
+  --sp-4: 4px; --sp-8: 8px; --sp-12: 12px; --sp-16: 16px;
+  --sp-20: 20px; --sp-24: 24px; --sp-32: 32px; --sp-40: 40px; --sp-48: 48px; --sp-64: 64px;
+
+  /* ---------- 圆角（工业感：更锐利） ---------- */
+  --radius-xs: 4px;
   --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
   --radius-full: 999px;
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
-  --shadow-pop: 0 12px 40px rgba(0, 0, 0, 0.16);
 
-  /* 系统色 */
-  --color-primary: #007AFF;
-  --color-primary-hover: #0A84FF;
-  --color-primary-active: #0066CC;
-  --color-primary-soft: rgba(0, 122, 255, 0.1);
-  --color-green: #34C759;
-  --color-red: #FF3B30;
-  --color-orange: #FF9500;
-  --color-yellow: #FFCC00;
-  --color-purple: #AF52DE;
-  --color-cyan: #5AC8FA;
-  --color-pink: #FF2D55;
+  /* ---------- 阴影（深色下极弱，层级靠背景与边框） ---------- */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.55);
+  --shadow-pop: 0 24px 64px rgba(0, 0, 0, 0.6);
+  --glow-green: 0 0 24px rgba(126, 226, 184, 0.18);
 
-  /* 灰阶与文字（shadcn 分层思路：background / card / muted / border） */
-  --bg-page: #F2F2F7;
-  --bg-card: #FFFFFF;
-  --bg-muted: #F7F7F9;            /* 表头、次级填充 */
-  --bg-subtle: #EBEBF0;           /* 悬浮/凹陷区 */
-  --text-main: rgba(0, 0, 0, 0.85);
-  --text-sub: rgba(0, 0, 0, 0.5);
-  --text-placeholder: rgba(0, 0, 0, 0.3);
-  --border-hairline: rgba(0, 0, 0, 0.08);
-  --border-default: rgba(0, 0, 0, 0.12);
-  --fill-secondary: rgba(118, 118, 128, 0.12);
-  --fill-tertiary: rgba(118, 118, 128, 0.08);
+  /* ---------- 焦点环 ---------- */
+  --ring-color: rgba(126, 226, 184, 0.4);
+  --ring-offset: var(--bg-primary);
 
-  /* 焦点环（shadcn：ring + ring-offset，保证键盘可达性） */
-  --ring-color: rgba(0, 122, 255, 0.35);
-  --ring-offset: #FFFFFF;
-
-  /* 动效（shadcn 默认 transition-colors 200ms） */
+  /* ---------- 动效 ---------- */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --dur-fast: 150ms;
-  --dur-base: 200ms;
-  --dur-slow: 300ms;
+  --dur-base: 250ms;
+  --dur-slow: 500ms;
 
-  /* 滚动条 */
-  --scrollbar-thumb: rgba(0, 0, 0, 0.18);
-  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
+  /* ---------- 滚动条 ---------- */
+  --scrollbar-thumb: rgba(255, 255, 255, 0.14);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.26);
 }
 
-/* 深色模式（监测大屏页用，html 加 data-theme="dark"） */
+/* 兼容旧标记：data-theme="dark" 与默认一致（系统已整体深色） */
 [data-theme='dark'] {
-  --bg-page: #000000;
-  --bg-card: #1C1C1E;
-  --bg-muted: #26262A;
-  --bg-subtle: #2C2C2E;
-  --text-main: rgba(255, 255, 255, 0.95);
-  --text-sub: rgba(255, 255, 255, 0.6);
-  --text-placeholder: rgba(255, 255, 255, 0.35);
-  --border-hairline: rgba(255, 255, 255, 0.12);
-  --border-default: rgba(255, 255, 255, 0.18);
-  --fill-secondary: rgba(118, 118, 128, 0.24);
-  --fill-tertiary: rgba(118, 118, 128, 0.16);
-  --ring-color: rgba(10, 132, 255, 0.55);
-  --ring-offset: #1C1C1E;
-  --scrollbar-thumb: rgba(255, 255, 255, 0.22);
-  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.36);
+  --bg-page: var(--bg-primary);
+  --bg-card: var(--bg-tertiary);
+  --bg-muted: var(--bg-secondary);
+  --bg-subtle: var(--bg-elevated);
+  --text-main: var(--text-primary);
+  --text-sub: var(--text-secondary);
+  --text-placeholder: var(--text-muted);
+  --border-hairline: var(--border-subtle);
+  --border-default: var(--border-soft);
+  --fill-secondary: rgba(255, 255, 255, 0.06);
+  --fill-tertiary: rgba(255, 255, 255, 0.04);
+  --ring-color: rgba(126, 226, 184, 0.4);
+  --ring-offset: var(--bg-primary);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.14);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.26);
 }
 
 /* ============ 通用组件类 ============ */
 
-/* 卡片：无边框 + 柔和阴影（shadcn 思路：border 或 shadow 二选一，选 shadow） */
+/* 面板：背景分层 + 细边框，无厚重阴影 */
 .apple-card {
-  background: var(--bg-card);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  border: none;
-  padding: var(--sp-20);
+  padding: var(--sp-24);
+  position: relative;
 }
 
-/* 通用页面容器 */
+/* 页面容器：留白驱动 */
 .page-container {
-  padding: var(--sp-24);
+  padding: var(--sp-32) var(--sp-40) var(--sp-64);
   display: flex;
   flex-direction: column;
-  gap: var(--sp-24);
-  max-width: 1440px;
+  gap: var(--sp-32);
+  max-width: 1400px;
   margin: 0 auto;
 }
 
-/* 页面标题区 */
+/* Editorial 页面标题 */
 .page-title {
   font-size: var(--fs-title-1);
   font-weight: var(--fw-semibold);
-  margin: 0 0 var(--sp-4);
+  margin: 0 0 var(--sp-8);
   letter-spacing: -0.02em;
+  color: var(--text-primary);
 }
 
 .page-subtitle {
   font-size: var(--fs-subhead);
-  color: var(--text-sub);
+  color: var(--text-secondary);
   margin: 0;
 }
 
-/* 焦点环工具类（shadcn ring 模式） */
-.focus-ring {
-  outline: none;
-  transition: box-shadow var(--dur-fast) var(--ease-out);
+/* Section 标签：01 / OVERVIEW */
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
-.focus-ring:focus-visible {
-  box-shadow: 0 0 0 3px var(--ring-color);
+.section-label::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--border-strong);
+}
+.section-label .num {
+  color: var(--env-green);
 }
 
-/* 数字等宽对齐 */
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
+/* 焦点环 */
+.focus-ring { outline: none; transition: box-shadow var(--dur-fast) var(--ease-out); }
+.focus-ring:focus-visible { box-shadow: 0 0 0 3px var(--ring-color); }
+
+/* 数字等宽 */
+.tabular-nums { font-variant-numeric: tabular-nums; }
+
+/* 实时状态点（轻微呼吸，不闪烁） */
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--env-green);
+  animation: live-pulse 2.5s ease-in-out infinite;
+}
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(126, 226, 184, 0.35); }
+  50% { opacity: 0.75; box-shadow: 0 0 0 5px rgba(126, 226, 184, 0); }
 }
 
-/* 细滚动条（shadcn 风格：纤细、低存在感） */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb) transparent;
-}
-*::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-*::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
-  border-radius: var(--radius-full);
-}
-*::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover);
-}
+/* 细滚动条 */
+* { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: var(--radius-full); }
+*::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
