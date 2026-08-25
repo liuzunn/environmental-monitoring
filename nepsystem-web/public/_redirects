@@ -1,0 +1,5 @@
+# Netlify 配置：SPA 路由回退（拖拽部署后刷新 /dashboard 等路径不再 404）
+/* /index.html 200
+
+# 若日后后端部署到公网，可在此加 API 反代（取消注释并替换为实际地址）：
+# /api/*  https://your-backend.example.com/api/:splat  200
