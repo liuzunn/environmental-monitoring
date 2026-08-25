@@ -113,7 +113,7 @@ async function loadAll() {
 async function loadRows() {
   loading.value = true
   try {
-    const p = params({ page: page.value, size })
+    const p = params({ page: page.value, size: size.value })
     if (query.value.sensorCodes.length === 1) p.sensorCode = query.value.sensorCodes[0]
     const d = await getHistory(p)
     rows.value = d.records || []

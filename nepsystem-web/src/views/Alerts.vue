@@ -89,7 +89,7 @@ const fmtTime = t => (t ? String(t).replace('T', ' ').slice(0, 19) : '-')
 async function load() {
   loading.value = true
   try {
-    const d = await getAlertsPage({ page: page.value, size, level: query.level || undefined, status: query.status ?? undefined, deviceId: query.deviceId ?? undefined })
+    const d = await getAlertsPage({ page: page.value, size: size.value, level: query.level || undefined, status: query.status ?? undefined, deviceId: query.deviceId ?? undefined })
     rows.value = d.records || []
     total.value = Number(d.total || 0)
   } finally {

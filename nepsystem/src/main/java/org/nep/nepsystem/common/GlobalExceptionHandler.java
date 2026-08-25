@@ -20,6 +20,13 @@ public class GlobalExceptionHandler {
         return Result.fail(e.getCode(), e.getMessage());
     }
 
+    /** 参数类型不匹配（如 int 收到非数字字符串） */
+    @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
+    public Result<?> handleTypeMismatch(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException e) {
+        log.warn("参数类型错误: 参数 {} 需要类型 {}, 实际值: {}", e.getName(), e.getRequiredType() != null ? e.getRequiredType().getSimpleName() : "?", e.getValue());
+        return Result.fail(400, "参数格式错误: " + e.getName() + " 需要 " + (e.getRequiredType() != null ? e.getRequiredType().getSimpleName() : "数字") + " 类型");
+    }
+
     /** 参数校验异常（@Valid 触发） */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Result<?> handleValidException(MethodArgumentNotValidException e) {
