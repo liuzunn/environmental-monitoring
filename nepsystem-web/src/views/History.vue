@@ -126,9 +126,9 @@ async function loadRows() {
 async function loadTrend() {
   if (!chart) chart = echarts.init(chartRef.value)
   if (!hasTrend.value) {
-    // 空态：紧凑提示，容器高度收缩为 120px，避免大块空白
+    // 空态：紧凑提示，容器高度收缩，避免大块空白
     chart.clear()
-    chart.setOption(emptyOption())
+    chart.setOption(emptyOption(), true)
     await nextTick()
     chart.resize()
     return
@@ -149,6 +149,7 @@ async function loadTrend() {
     })
   }
   // 容器高度可能在空态/数据态间切换，先等 DOM 高度变化再重绘
+  // notMerge: 整体替换配置，避免空态 "暂无趋势数据" title 残留
   await nextTick()
   chart.resize()
   chart.setOption({
@@ -174,7 +175,7 @@ async function loadTrend() {
       axisLabel: { color: 'rgba(0,0,0,0.45)', fontSize: 11 }
     },
     series
-  })
+  }, true)
 }
 
 function emptyOption() {
@@ -274,13 +275,13 @@ onUnmounted(() => {
 }
 
 .chart-box {
-  height: 320px;
+  height: 400px;
   transition: height var(--dur-slow) var(--ease-out);
 }
 
 /* 空态：收缩高度，消除大块空白 */
 .chart-box.is-empty {
-  height: 120px;
+  height: 140px;
 }
 
 /* 明细表格卡片 */
