@@ -600,7 +600,7 @@ onUnmounted(() => {
 /* ═══════════ HERO ═══════════ */
 .hero {
   position: relative;
-  min-height: 100vh;
+  min-height: calc(100vh - 88px);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -637,7 +637,7 @@ onUnmounted(() => {
 }
 
 .hero-title {
-  margin: var(--sp-32) 0 var(--sp-40);
+  margin: var(--sp-16) 0 var(--sp-40);
   font-size: clamp(44px, 7vw, 88px);
   font-weight: 700;
   line-height: 1.02;

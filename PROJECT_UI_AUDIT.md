@@ -142,13 +142,13 @@ nepsystem-web/src/
 | 无地图库依赖 | 中 | 不引入新依赖（网络受限），用 ECharts scatter/自定义 SVG 实现传感器空间图 |
 | 构建验证 | 低 | 每阶段 npm run build + 浏览器冒烟 |
 
-## 11. 改造阶段计划
+## 11. 改造阶段计划（进度）
 
-- [ ] P1 设计令牌：深色工业风 Design Token（bg/text/border/env-green 语义层）+ Element 深色覆盖
-- [ ] P2 导航：MainLayout → Floating HUD（fixed 顶部漂浮胶囊导航，毛玻璃，不占内容区）
-- [ ] P3 首页/实时监测：Hero(80-100vh) + Editorial 布局 + 数据三级层级 + 实时状态 + SCROLL 提示
-- [ ] P4 传感器网络空间视图（ECharts scatter 抽象空间图，Region 分组，状态脉冲）
-- [ ] P5 管理页适配：History/Devices/Alerts/Thresholds/Users 深色 Editorial 化
-- [ ] P6 图表重设计：极简坐标轴/低对比网格/渐变填充/动画 reveal
-- [ ] P7 滚动叙事：reveal/fade/scale 交互（克制），Login 页深色化
-- [ ] P8 构建验证 + 全量提交
+- [x] P1 设计令牌：深色工业风 Design Token（bg/text/border/env-green 语义层）+ Element 深色覆盖
+- [x] P2 导航：MainLayout → Floating HUD（fixed 顶部漂浮胶囊导航，毛玻璃，不占内容区）
+- [x] P3 首页/实时监测：Hero(100vh) + Editorial 布局 + 数据三级层级 + 实时状态 + SCROLL 提示
+- [x] P4 传感器网络空间视图（ECharts effectScatter 抽象空间图，类型分列，状态脉冲/超标红/选中高亮）
+- [x] P5 管理页适配：History/Devices/Alerts/Thresholds/Users 深色 Editorial 化 + section 编号
+- [x] P6 图表重设计：极简坐标轴/低对比网格/深色 tooltip/平滑曲线（Dashboard + History）
+- [x] P7 滚动叙事：reveal 入场 + Hero scale 动画（克制），Login 页深色化
+- [x] P8 构建验证 + 全量提交
