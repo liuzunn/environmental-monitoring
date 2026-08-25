@@ -128,7 +128,7 @@ drenepsystem/
 │       └── router/ store/      # 路由守卫 / Pinia 状态
 ├── docs/                       # 设计文档（接口/数据库/部署）
 ├── PROJECT_UI_AUDIT.md         # UI 重构审计（技术栈/API/风险/阶段）
-└── 苹果风设计规范.md            # 视觉规范（ENVISION 前身）
+└── ENVISION-DESIGN.md          # 设计体系（设计令牌/布局/组件/动效规范）
 ```
 
 ## 📡 API 概览（baseURL /api）
@@ -158,6 +158,8 @@ cd nepsystem && powershell -ExecutionPolicy Bypass -File e2e-test.ps1
 - [接口文档](./docs/接口文档.md)
 - [数据库设计](./docs/数据库设计.md)
 - [部署手册](./docs/部署手册.md)
+- [项目说明](./docs/项目说明.md)
+- [ENVISION 设计体系](./ENVISION-DESIGN.md)
 - [UI 重构审计](./PROJECT_UI_AUDIT.md)
 - [MQTT 硬件接入](./nepsystem/README-MQTT.md)
 
