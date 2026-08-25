@@ -145,11 +145,27 @@ async function loadTrend() {
     })
   }
   chart.setOption({
-    tooltip: { trigger: 'axis' },
-    legend: { data: legend, top: 0 },
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(255,255,255,0.96)',
+      borderWidth: 0,
+      borderRadius: 10,
+      padding: [8, 12],
+      textStyle: { color: 'rgba(0,0,0,0.85)', fontSize: 12 },
+      axisPointer: { lineStyle: { color: 'rgba(0,0,0,0.15)' } }
+    },
+    legend: { data: legend, top: 0, icon: 'roundRect', itemWidth: 10, itemHeight: 10 },
     grid: { left: 48, right: 20, top: 36, bottom: 28 },
-    xAxis: { type: 'category', data: xAxis, boundaryGap: false },
-    yAxis: { type: 'value' },
+    xAxis: {
+      type: 'category', data: xAxis, boundaryGap: false,
+      axisLine: { lineStyle: { color: 'rgba(0,0,0,0.1)' } },
+      axisLabel: { color: 'rgba(0,0,0,0.45)', fontSize: 11 }
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: 'rgba(0,0,0,0.06)' } },
+      axisLabel: { color: 'rgba(0,0,0,0.45)', fontSize: 11 }
+    },
     series
   })
 }
@@ -184,11 +200,15 @@ onMounted(async () => {
   sensors.value = s || []
   if (devices.value.length) query.value.deviceId = devices.value[0].id
   await loadAll()
-  window.addEventListener('resize', () => chart?.resize())
+  window.addEventListener('resize', onResize)
 })
 
+function onResize() {
+  chart?.resize()
+}
+
 onUnmounted(() => {
-  window.removeEventListener('resize', () => chart?.resize())
+  window.removeEventListener('resize', onResize)
   chart?.dispose()
 })
 </script>
@@ -197,6 +217,10 @@ onUnmounted(() => {
 .filter-card {
   display: flex;
   align-items: center;
+  box-shadow: var(--shadow-sm);
+}
+.filter-card :deep(.el-form-item__label) {
+  color: var(--text-sub);
 }
 .filter-card :deep(.el-form-item) {
   margin-bottom: 0;

@@ -172,5 +172,6 @@ onMounted(async () => {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  gap: var(--sp-16);
 }
 </style>

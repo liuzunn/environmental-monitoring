@@ -1,6 +1,8 @@
 /* ============================================================
-   苹果风设计令牌（来源：苹果风设计规范.md）
-   字体层级 / 8pt 间距网格 / 圆角阴影 / 系统色板
+   设计令牌（苹果风设计规范.md × shadcn/ui 主题体系）
+   - 字体层级 / 8pt 间距网格 / 圆角阴影 / 系统色板（Apple）
+   - 语义分层 / 焦点环 / 动效令牌（shadcn/ui theming 思路：
+     背景分层表达层级、低对比边框、克制的阴影、可见焦点环）
    ============================================================ */
 :root {
   /* 字体层级 */
@@ -16,7 +18,9 @@
   --fs-caption-1: 12px;
   --fs-caption-2: 11px;
   --fw-regular: 400;
+  --fw-medium: 500;
   --fw-semibold: 600;
+  --fw-bold: 700;
 
   /* 间距（8pt 网格） */
   --sp-4: 4px;
@@ -28,17 +32,22 @@
   --sp-32: 32px;
   --sp-40: 40px;
 
-  /* 圆角与阴影 */
+  /* 圆角与阴影（shadcn：radius 基准 + 派生；阴影低存在感） */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
   --radius-full: 999px;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-pop: 0 12px 40px rgba(0, 0, 0, 0.16);
 
   /* 系统色 */
   --color-primary: #007AFF;
+  --color-primary-hover: #0A84FF;
+  --color-primary-active: #0066CC;
+  --color-primary-soft: rgba(0, 122, 255, 0.1);
   --color-green: #34C759;
   --color-red: #FF3B30;
   --color-orange: #FF9500;
@@ -47,28 +56,56 @@
   --color-cyan: #5AC8FA;
   --color-pink: #FF2D55;
 
-  /* 灰阶与文字 */
+  /* 灰阶与文字（shadcn 分层思路：background / card / muted / border） */
   --bg-page: #F2F2F7;
   --bg-card: #FFFFFF;
+  --bg-muted: #F7F7F9;            /* 表头、次级填充 */
+  --bg-subtle: #EBEBF0;           /* 悬浮/凹陷区 */
   --text-main: rgba(0, 0, 0, 0.85);
   --text-sub: rgba(0, 0, 0, 0.5);
   --text-placeholder: rgba(0, 0, 0, 0.3);
   --border-hairline: rgba(0, 0, 0, 0.08);
+  --border-default: rgba(0, 0, 0, 0.12);
   --fill-secondary: rgba(118, 118, 128, 0.12);
+  --fill-tertiary: rgba(118, 118, 128, 0.08);
+
+  /* 焦点环（shadcn：ring + ring-offset，保证键盘可达性） */
+  --ring-color: rgba(0, 122, 255, 0.35);
+  --ring-offset: #FFFFFF;
+
+  /* 动效（shadcn 默认 transition-colors 200ms） */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 150ms;
+  --dur-base: 200ms;
+  --dur-slow: 300ms;
+
+  /* 滚动条 */
+  --scrollbar-thumb: rgba(0, 0, 0, 0.18);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
 }
 
 /* 深色模式（监测大屏页用，html 加 data-theme="dark"） */
 [data-theme='dark'] {
   --bg-page: #000000;
   --bg-card: #1C1C1E;
+  --bg-muted: #26262A;
+  --bg-subtle: #2C2C2E;
   --text-main: rgba(255, 255, 255, 0.95);
   --text-sub: rgba(255, 255, 255, 0.6);
   --text-placeholder: rgba(255, 255, 255, 0.35);
   --border-hairline: rgba(255, 255, 255, 0.12);
+  --border-default: rgba(255, 255, 255, 0.18);
   --fill-secondary: rgba(118, 118, 128, 0.24);
+  --fill-tertiary: rgba(118, 118, 128, 0.16);
+  --ring-color: rgba(10, 132, 255, 0.55);
+  --ring-offset: #1C1C1E;
+  --scrollbar-thumb: rgba(255, 255, 255, 0.22);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.36);
 }
 
-/* 通用卡片（苹果风：无边框 + 柔和阴影 + 14px 圆角） */
+/* ============ 通用组件类 ============ */
+
+/* 卡片：无边框 + 柔和阴影（shadcn 思路：border 或 shadow 二选一，选 shadow） */
 .apple-card {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
@@ -77,19 +114,22 @@
   padding: var(--sp-20);
 }
 
-/* 通用页面容器：边距 24px，区块间距 24px */
+/* 通用页面容器 */
 .page-container {
   padding: var(--sp-24);
   display: flex;
   flex-direction: column;
   gap: var(--sp-24);
+  max-width: 1440px;
+  margin: 0 auto;
 }
 
-/* 页面大标题 */
+/* 页面标题区 */
 .page-title {
   font-size: var(--fs-title-1);
   font-weight: var(--fw-semibold);
   margin: 0 0 var(--sp-4);
+  letter-spacing: -0.02em;
 }
 
 .page-subtitle {
@@ -98,7 +138,36 @@
   margin: 0;
 }
 
+/* 焦点环工具类（shadcn ring 模式） */
+.focus-ring {
+  outline: none;
+  transition: box-shadow var(--dur-fast) var(--ease-out);
+}
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 3px var(--ring-color);
+}
+
 /* 数字等宽对齐 */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+/* 细滚动条（shadcn 风格：纤细、低存在感） */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: var(--radius-full);
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
 }

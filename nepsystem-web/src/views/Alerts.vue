@@ -29,7 +29,8 @@
       <el-table :data="rows" v-loading="loading">
         <el-table-column label="级别" width="90">
           <template #default="{ row }">
-            <el-tag :type="row.level === 'ALARM' ? 'danger' : 'warning'" round size="small">
+            <el-tag :type="row.level === 'ALARM' ? 'danger' : 'warning'" round size="small" class="level-tag">
+              <span class="tag-dot" :class="row.level === 'ALARM' ? 'alarm' : 'warn'"></span>
               {{ row.level === 'ALARM' ? '报警' : '预警' }}
             </el-tag>
           </template>
@@ -131,7 +132,20 @@ onMounted(async () => {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  gap: var(--sp-16);
 }
+.level-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.tag-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.tag-dot.alarm { box-shadow: 0 0 4px currentColor; }
 .count-badge {
   background: rgba(255, 59, 48, 0.1);
   color: #FF3B30;

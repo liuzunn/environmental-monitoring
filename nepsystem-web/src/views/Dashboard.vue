@@ -2,7 +2,8 @@
   <div class="big-screen" data-theme="dark">
     <!-- 顶栏统计 -->
     <div class="stat-row">
-      <div v-for="s in stats" :key="s.label" class="stat-card" :style="{ borderTopColor: s.color }">
+      <div v-for="s in stats" :key="s.label" class="stat-card" :style="{ '--accent': s.color }">
+        <div class="stat-glow" :style="{ background: s.color }"></div>
         <div class="stat-value tabular-nums" :style="{ color: s.color }">{{ s.value }}</div>
         <div class="stat-label">{{ s.label }}</div>
       </div>
@@ -16,7 +17,8 @@
           {{ d.deviceName }}
         </el-radio-button>
       </el-radio-group>
-      <el-tag v-if="activeDevice" :type="activeDevice.status === 1 ? 'success' : 'info'" round effect="dark">
+      <el-tag v-if="activeDevice" :type="activeDevice.status === 1 ? 'success' : 'info'" round effect="dark" class="status-tag">
+        <span class="tag-dot" :class="activeDevice.status === 1 ? 'online' : 'offline'"></span>
         {{ activeDevice.status === 1 ? '在线' : '离线' }}
       </el-tag>
     </div>
@@ -24,7 +26,9 @@
     <div class="main-row">
       <!-- 左侧：Gauge 仪表盘 -->
       <div class="panel gauge-panel">
-        <div class="panel-title">实时指标</div>
+        <div class="panel-title">
+          <span class="title-bar"></span>实时指标
+        </div>
         <div class="gauge-grid">
           <div v-for="s in activeSensors" :key="s.sensorCode" class="gauge-item">
             <div :ref="(el) => setGaugeRef(s.sensorCode, el)" class="gauge-box"></div>
@@ -39,7 +43,9 @@
 
       <!-- 右侧：实时曲线 -->
       <div class="panel trend-panel">
-        <div class="panel-title">实时趋势（最近 20 个数据点，5 秒刷新）</div>
+        <div class="panel-title">
+          <span class="title-bar"></span>实时趋势（最近 20 个数据点，5 秒刷新）
+        </div>
         <div ref="trendChartRef" class="trend-chart"></div>
       </div>
     </div>
@@ -47,7 +53,9 @@
     <div class="bottom-row">
       <!-- 设备列表：最新值 + 超标高亮 -->
       <div class="panel device-panel">
-        <div class="panel-title">设备最新数据</div>
+        <div class="panel-title">
+          <span class="title-bar"></span>设备最新数据
+        </div>
         <div class="device-grid">
           <div v-for="d in devices" :key="d.id" class="device-card" :class="{ active: d.id === activeDeviceId }" @click="activeDeviceId = d.id">
             <div class="dev-head">
@@ -68,13 +76,13 @@
       <!-- 告警滚动 -->
       <div class="panel alert-panel">
         <div class="panel-title">
-          最新告警
+          <span class="title-bar"></span>最新告警
           <el-tag v-if="unhandled.count > 0" type="danger" round effect="dark" size="small" class="alert-count">
             {{ unhandled.count }} 未处理
           </el-tag>
         </div>
         <div v-if="unhandled.latest && unhandled.latest.length" class="alert-list">
-          <div v-for="a in unhandled.latest" :key="a.id" class="alert-item">
+          <div v-for="a in unhandled.latest" :key="a.id" class="alert-item" :class="a.level === 'ALARM' ? 'alarm' : 'warn'">
             <span class="alert-level" :class="a.level === 'ALARM' ? 'alarm' : 'warn'">
               {{ a.level === 'ALARM' ? '报警' : '预警' }}
             </span>
@@ -327,7 +335,9 @@ onUnmounted(() => {
 <style scoped>
 .big-screen {
   min-height: 100%;
-  background: #000;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0, 122, 255, 0.08), transparent),
+    #000;
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -335,6 +345,7 @@ onUnmounted(() => {
   color: rgba(255, 255, 255, 0.9);
 }
 
+/* ---------- 统计卡片 ---------- */
 .stat-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -342,17 +353,36 @@ onUnmounted(() => {
 }
 
 .stat-card {
-  background: #1C1C1E;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #1F1F22, #1C1C1E);
   border-radius: 16px;
-  border-top: 3px solid;
   padding: 20px 24px;
+  border: 0.5px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  transition: transform var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+.stat-glow {
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  opacity: 0.14;
+  filter: blur(24px);
 }
 
 .stat-value {
   font-size: 34px;
   font-weight: 700;
   line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
 .stat-label {
@@ -361,10 +391,12 @@ onUnmounted(() => {
   margin-top: 4px;
 }
 
+/* ---------- 设备切换 ---------- */
 .device-bar {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 .bar-label {
@@ -373,18 +405,41 @@ onUnmounted(() => {
   color: rgba(255, 255, 255, 0.8);
 }
 
+.device-bar :deep(.el-radio-group) {
+  background: rgba(255, 255, 255, 0.06);
+}
 .device-bar :deep(.el-radio-button__inner) {
-  background: #1C1C1E;
-  border-color: #2C2C2E;
+  background: transparent;
+  border-color: transparent;
   color: rgba(255, 255, 255, 0.7);
   box-shadow: none;
+  padding: 8px 18px;
 }
 .device-bar :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
   background: #007AFF;
   border-color: #007AFF;
   color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.4);
 }
 
+.status-tag {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+}
+.tag-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.tag-dot.online { background: #30D158; box-shadow: 0 0 6px #30D158; }
+.tag-dot.offline { background: #8E8E93; }
+
+/* ---------- 面板 ---------- */
 .main-row {
   display: grid;
   grid-template-columns: 5fr 7fr;
@@ -399,9 +454,10 @@ onUnmounted(() => {
 }
 
 .panel {
-  background: #1C1C1E;
+  background: linear-gradient(180deg, #1F1F22, #1C1C1E);
   border-radius: 16px;
   padding: 20px;
+  border: 0.5px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 }
 
@@ -415,6 +471,15 @@ onUnmounted(() => {
   gap: 8px;
 }
 
+.title-bar {
+  width: 3px;
+  height: 14px;
+  border-radius: var(--radius-full);
+  background: #007AFF;
+  box-shadow: 0 0 8px rgba(0, 122, 255, 0.6);
+}
+
+/* ---------- 仪表盘 ---------- */
 .gauge-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -456,6 +521,7 @@ onUnmounted(() => {
   height: 280px;
 }
 
+/* ---------- 设备卡片 ---------- */
 .device-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -468,11 +534,17 @@ onUnmounted(() => {
   padding: 14px 16px;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: border-color 0.2s;
+  transition: border-color var(--dur-base) var(--ease-out),
+              transform var(--dur-base) var(--ease-out),
+              background var(--dur-base) var(--ease-out);
 }
-
+.device-card:hover {
+  transform: translateY(-1px);
+  background: #323236;
+}
 .device-card.active {
   border-color: #007AFF;
+  background: rgba(0, 122, 255, 0.08);
 }
 
 .dev-head {
@@ -527,6 +599,7 @@ onUnmounted(() => {
   color: #FF453A;
 }
 
+/* ---------- 告警 ---------- */
 .alert-count {
   background: rgba(255, 59, 48, 0.15);
   color: #FF453A;
@@ -547,7 +620,12 @@ onUnmounted(() => {
   border-radius: 10px;
   padding: 10px 12px;
   font-size: 13px;
+  border-left: 3px solid transparent;
+  transition: background var(--dur-fast) var(--ease-out);
 }
+.alert-item:hover { background: #323236; }
+.alert-item.alarm { border-left-color: #FF453A; }
+.alert-item.warn { border-left-color: #FF9F0A; }
 
 .alert-level {
   flex-shrink: 0;

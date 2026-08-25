@@ -158,6 +158,7 @@ onMounted(load)
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  gap: var(--sp-16);
 }
 .filter-bar {
   display: flex;

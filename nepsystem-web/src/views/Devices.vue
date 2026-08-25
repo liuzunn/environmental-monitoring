@@ -33,9 +33,11 @@
           </template>
         </el-table-column>
         <el-table-column prop="location" label="安装位置" min-width="160" show-overflow-tooltip />
-        <el-table-column label="状态" width="90">
+        <el-table-column label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="statusTag(row.status)" round size="small">{{ statusName(row.status) }}</el-tag>
+            <el-tag :type="statusTag(row.status)" round size="small" class="status-tag">
+              <span class="tag-dot" :class="'s' + row.status"></span>{{ statusName(row.status) }}
+            </el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="lastReportTime" label="最近上报" width="170">
@@ -172,6 +174,7 @@ onMounted(load)
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  gap: var(--sp-16);
 }
 .filter-bar {
   display: flex;
@@ -179,4 +182,18 @@ onMounted(load)
   margin-bottom: 16px;
   flex-wrap: wrap;
 }
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.tag-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.tag-dot.s1 { color: var(--color-green); box-shadow: 0 0 4px var(--color-green); }
+.tag-dot.s0 { color: var(--text-placeholder); }
+.tag-dot.s2 { color: var(--color-red); }
 </style>
