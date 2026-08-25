@@ -1,0 +1,104 @@
+/* ============================================================
+   苹果风设计令牌（来源：苹果风设计规范.md）
+   字体层级 / 8pt 间距网格 / 圆角阴影 / 系统色板
+   ============================================================ */
+:root {
+  /* 字体层级 */
+  --fs-large-title: 34px;
+  --fs-title-1: 28px;
+  --fs-title-2: 22px;
+  --fs-title-3: 20px;
+  --fs-headline: 17px;
+  --fs-body: 17px;
+  --fs-callout: 16px;
+  --fs-subhead: 15px;
+  --fs-footnote: 13px;
+  --fs-caption-1: 12px;
+  --fs-caption-2: 11px;
+  --fw-regular: 400;
+  --fw-semibold: 600;
+
+  /* 间距（8pt 网格） */
+  --sp-4: 4px;
+  --sp-8: 8px;
+  --sp-12: 12px;
+  --sp-16: 16px;
+  --sp-20: 20px;
+  --sp-24: 24px;
+  --sp-32: 32px;
+  --sp-40: 40px;
+
+  /* 圆角与阴影 */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 999px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+  /* 系统色 */
+  --color-primary: #007AFF;
+  --color-green: #34C759;
+  --color-red: #FF3B30;
+  --color-orange: #FF9500;
+  --color-yellow: #FFCC00;
+  --color-purple: #AF52DE;
+  --color-cyan: #5AC8FA;
+  --color-pink: #FF2D55;
+
+  /* 灰阶与文字 */
+  --bg-page: #F2F2F7;
+  --bg-card: #FFFFFF;
+  --text-main: rgba(0, 0, 0, 0.85);
+  --text-sub: rgba(0, 0, 0, 0.5);
+  --text-placeholder: rgba(0, 0, 0, 0.3);
+  --border-hairline: rgba(0, 0, 0, 0.08);
+  --fill-secondary: rgba(118, 118, 128, 0.12);
+}
+
+/* 深色模式（监测大屏页用，html 加 data-theme="dark"） */
+[data-theme='dark'] {
+  --bg-page: #000000;
+  --bg-card: #1C1C1E;
+  --text-main: rgba(255, 255, 255, 0.95);
+  --text-sub: rgba(255, 255, 255, 0.6);
+  --text-placeholder: rgba(255, 255, 255, 0.35);
+  --border-hairline: rgba(255, 255, 255, 0.12);
+  --fill-secondary: rgba(118, 118, 128, 0.24);
+}
+
+/* 通用卡片（苹果风：无边框 + 柔和阴影 + 14px 圆角） */
+.apple-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: none;
+  padding: var(--sp-20);
+}
+
+/* 通用页面容器：边距 24px，区块间距 24px */
+.page-container {
+  padding: var(--sp-24);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-24);
+}
+
+/* 页面大标题 */
+.page-title {
+  font-size: var(--fs-title-1);
+  font-weight: var(--fw-semibold);
+  margin: 0 0 var(--sp-4);
+}
+
+.page-subtitle {
+  font-size: var(--fs-subhead);
+  color: var(--text-sub);
+  margin: 0;
+}
+
+/* 数字等宽对齐 */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}

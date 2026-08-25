@@ -1,0 +1,22 @@
+# Java / Maven
+nepsystem/target/
+nepsystem/app.log
+*.class
+
+# Node
+nepsystem-web/node_modules/
+nepsystem-web/dist/
+nepsystem-web/dev.log
+
+# 会话内工具目录（可删）
+.m2repo/
+.npm-cache/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# 系统
+Thumbs.db
+.DS_Store

@@ -1,0 +1,211 @@
+<template>
+  <div class="page-container">
+    <div>
+      <h2 class="page-title">历史数据</h2>
+      <p class="page-subtitle">按设备与指标查询历史监测数据，支持趋势分析与 CSV 导出</p>
+    </div>
+
+    <!-- 筛选器 -->
+    <div class="apple-card filter-card">
+      <el-form inline :model="query" label-width="70px">
+        <el-form-item label="设备">
+          <el-select v-model="query.deviceId" placeholder="选择设备" style="width: 220px" clearable @change="loadAll">
+            <el-option v-for="d in devices" :key="d.id" :label="d.deviceName" :value="d.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="指标">
+          <el-select v-model="query.sensorCodes" multiple placeholder="多选指标" style="width: 260px" collapse-tags>
+            <el-option v-for="s in sensors" :key="s.sensorCode" :label="s.sensorName + ' (' + s.sensorCode + ')'" :value="s.sensorCode" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="时间">
+          <el-date-picker
+            v-model="range"
+            type="datetimerange"
+            range-separator="至"
+            start-placeholder="开始时间"
+            end-placeholder="结束时间"
+            style="width: 380px"
+            value-format="YYYY-MM-DD HH:mm:ss"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" :icon="Search" @click="loadAll">查询</el-button>
+          <el-button :icon="Download" @click="onExport">导出 CSV</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+
+    <!-- 趋势图 -->
+    <div class="apple-card">
+      <div class="chart-box" ref="chartRef"></div>
+    </div>
+
+    <!-- 明细表格 -->
+    <div class="apple-card">
+      <el-table :data="rows" v-loading="loading" stripe>
+        <el-table-column prop="deviceId" label="设备ID" width="90" />
+        <el-table-column prop="sensorCode" label="指标" width="110">
+          <template #default="{ row }">
+            <el-tag size="small" effect="plain">{{ row.sensorCode }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="value" label="数值" width="120">
+          <template #default="{ row }">
+            <span class="tabular-nums" :class="{ over: isOver(row) }">{{ row.value }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="reportTime" label="上报时间" />
+      </el-table>
+      <el-pagination
+        v-model:current-page="page"
+        :page-size="size"
+        :total="total"
+        layout="total, prev, pager, next"
+        @current-change="loadRows"
+      />
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { Search, Download } from '@element-plus/icons-vue'
+import * as echarts from 'echarts'
+import { getDevicesPage, getHistory, getTrend, getSensors, exportCsv } from '@/api'
+
+const devices = ref([])
+const sensors = ref([])
+const query = ref({ deviceId: null, sensorCodes: [], start: null, end: null })
+const range = ref(null)
+const rows = ref([])
+const total = ref(0)
+const page = ref(1)
+const size = ref(15)
+const loading = ref(false)
+const chartRef = ref()
+let chart = null
+
+const standards = computed(() => {
+  const m = {}
+  for (const s of sensors.value) m[s.sensorCode] = s.standardMax
+  return m
+})
+
+function isOver(row) {
+  const std = standards.value[row.sensorCode]
+  return std && Number(row.value) > Number(std)
+}
+
+function params(extra) {
+  const p = { ...extra }
+  if (query.value.deviceId) p.deviceId = query.value.deviceId
+  if (query.value.start) p.start = query.value.start
+  if (query.value.end) p.end = query.value.end
+  return p
+}
+
+async function loadAll() {
+  page.value = 1
+  await Promise.all([loadTrend(), loadRows()])
+}
+
+async function loadRows() {
+  loading.value = true
+  try {
+    const p = params({ page: page.value, size })
+    if (query.value.sensorCodes.length === 1) p.sensorCode = query.value.sensorCodes[0]
+    const d = await getHistory(p)
+    rows.value = d.records || []
+    total.value = Number(d.total || 0)
+  } finally {
+    loading.value = false
+  }
+}
+
+async function loadTrend() {
+  if (!query.value.deviceId || query.value.sensorCodes.length === 0) {
+    if (chart) { chart.clear(); chart.setOption(emptyOption()) }
+    return
+  }
+  if (!chart) chart = echarts.init(chartRef.value)
+  const series = []
+  const xAxis = []
+  const legend = []
+  for (const code of query.value.sensorCodes) {
+    const rows = await getTrend(params({ deviceId: query.value.deviceId, sensorCode: code, interval: 'hour' }))
+    const pts = (rows || []).map(r => [String(r.t).replace('T', ' '), Number(r.avg_value)])
+    if (xAxis.length === 0) xAxis.push(...pts.map(p => p[0]))
+    legend.push(code)
+    series.push({
+      name: code, type: 'line', smooth: true, showSymbol: false,
+      lineStyle: { width: 2 }, itemStyle: { color: colorOf(code) },
+      areaStyle: { opacity: 0.08, color: colorOf(code) },
+      data: pts
+    })
+  }
+  chart.setOption({
+    tooltip: { trigger: 'axis' },
+    legend: { data: legend, top: 0 },
+    grid: { left: 48, right: 20, top: 36, bottom: 28 },
+    xAxis: { type: 'category', data: xAxis, boundaryGap: false },
+    yAxis: { type: 'value' },
+    series
+  })
+}
+
+function emptyOption() {
+  return {
+    title: { text: '请选择设备与指标后查看趋势', left: 'center', top: 'middle', textStyle: { color: '#AEAEB2', fontSize: 14, fontWeight: 400 } },
+    grid: {}, xAxis: { type: 'category', data: [] }, yAxis: { type: 'value' }, series: []
+  }
+}
+
+function colorOf(code) {
+  const palette = { TEMP: '#FF9F0A', HUMI: '#5AC8FA', PM25: '#FF453A', CO2: '#AF52DE', PH: '#30D158', TURBIDITY: '#64D2FF', DO: '#0A84FF', NOISE: '#FFD60A' }
+  return palette[code] || '#007AFF'
+}
+
+async function onExport() {
+  const p = params({})
+  if (query.value.sensorCodes.length === 1) p.sensorCode = query.value.sensorCodes[0]
+  const blob = await exportCsv(p)
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'monitor_data.csv'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+onMounted(async () => {
+  const [d, s] = await Promise.all([getDevicesPage({ page: 1, size: 100 }), getSensors()])
+  devices.value = d.records || []
+  sensors.value = s || []
+  if (devices.value.length) query.value.deviceId = devices.value[0].id
+  await loadAll()
+  window.addEventListener('resize', () => chart?.resize())
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', () => chart?.resize())
+  chart?.dispose()
+})
+</script>
+
+<style scoped>
+.filter-card {
+  display: flex;
+  align-items: center;
+}
+.filter-card :deep(.el-form-item) {
+  margin-bottom: 0;
+}
+.chart-box {
+  height: 320px;
+}
+.over {
+  color: #FF3B30;
+  font-weight: 600;
+}
+</style>
