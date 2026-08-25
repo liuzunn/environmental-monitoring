@@ -1,22 +1,40 @@
-# Java / Maven
+# ============ 敏感信息（绝不提交） ============
+# 本地配置与密钥
+*.properties
+!application.example.properties
+.m2-settings.xml
+.m2repo/
+.npm-cache/
+*.key
+*.pem
+.env
+.env.*
+!.env.example
+
+# 日志
+*.log
+logs/
+
+# ============ 构建产物 ============
 nepsystem/target/
 nepsystem/app.log
 *.class
-
-# Node
 nepsystem-web/node_modules/
 nepsystem-web/dist/
-nepsystem-web/dev.log
+nepsystem-web/.vite/
 
-# 会话内工具目录（可删）
-.m2repo/
-.npm-cache/
+# ============ 本地开发过程文档（非项目资产） ============
+*.docx
+开发流程提示词_*.md
+环境总结与VSCode配置.md
 
-# IDE
+# ============ IDE / 系统 ============
 .idea/
 .vscode/
 *.iml
-
-# 系统
 Thumbs.db
 .DS_Store
+
+# 临时文件
+*.tmp
+COMMIT_MSG*.tmp
