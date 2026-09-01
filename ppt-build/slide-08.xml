@@ -1,0 +1,216 @@
+<slide xmlns="https://www.larkoffice.com/sml/2.0">
+  <style>
+    <fill>
+      <fillColor color="rgb(242,244,248)"/>
+    </fill>
+  </style>
+  <data>
+    <shape type="text" topLeftX="60" topLeftY="40" width="820" height="42">
+      <content textType="headline" fontSize="26" color="rgba(13,19,38,1)" textAlign="left" bold="true" letterSpacing="0.5">
+        <p>三大核心机制：两级告警、实时推送、质量评分</p>
+      </content>
+    </shape>
+    <line startX="60" startY="90" endX="100" endY="90">
+      <border color="rgba(37,99,235,1)" width="3"/>
+    </line>
+    <shape type="text" topLeftX="60" topLeftY="98" width="500" height="20">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left">
+        <p>核心功能实现 · 告警引擎 · 实时通信 · 质量评估</p>
+      </content>
+    </shape>
+
+    <shape type="rect" topLeftX="60" topLeftY="135" width="270" height="375" presetHandlers="6">
+      <fill><fillColor color="rgba(255,255,255,1)"/></fill>
+      <border color="rgba(220,225,235,1)" width="1"/>
+    </shape>
+    <shape type="rect" topLeftX="60" topLeftY="135" width="270" height="50" presetHandlers="6">
+      <fill><fillColor color="rgba(201,48,44,0.08)"/></fill>
+    </shape>
+    <shape type="text" topLeftX="75" topLeftY="145" width="40" height="30">
+      <content textType="headline" fontSize="24" color="rgba(201,48,44,1)" textAlign="left" bold="true"><p>01</p></content>
+    </shape>
+    <shape type="text" topLeftX="120" topLeftY="148" width="200" height="26">
+      <content textType="body" fontSize="17" color="rgba(13,19,38,1)" textAlign="left" bold="true"><p>两级阈值告警</p></content>
+    </shape>
+
+    <shape type="text" topLeftX="75" topLeftY="200" width="240" height="20">
+      <content textType="body" fontSize="12" color="rgba(13,19,38,1)" textAlign="left" bold="true"><p>阈值区间示意</p></content>
+    </shape>
+    <line startX="75" startY="235" endX="315" endY="235">
+      <border color="rgba(180,185,195,1)" width="2"/>
+    </line>
+    <shape type="rect" topLeftX="75" topLeftY="228" width="80" height="14">
+      <fill><fillColor color="rgba(76,175,80,0.3)"/></fill>
+    </shape>
+    <shape type="rect" topLeftX="155" topLeftY="228" width="80" height="14">
+      <fill><fillColor color="rgba(255,152,0,0.3)"/></fill>
+    </shape>
+    <shape type="rect" topLeftX="235" topLeftY="228" width="80" height="14">
+      <fill><fillColor color="rgba(201,48,44,0.3)"/></fill>
+    </shape>
+    <shape type="text" topLeftX="75" topLeftY="248" width="80" height="16">
+      <content textType="caption" fontSize="9" color="rgba(76,175,80,1)" textAlign="center"><p>正常</p></content>
+    </shape>
+    <shape type="text" topLeftX="155" topLeftY="248" width="80" height="16">
+      <content textType="caption" fontSize="9" color="rgba(255,152,0,1)" textAlign="center"><p>WARN 预警</p></content>
+    </shape>
+    <shape type="text" topLeftX="235" topLeftY="248" width="80" height="16">
+      <content textType="caption" fontSize="9" color="rgba(201,48,44,1)" textAlign="center"><p>ALARM 报警</p></content>
+    </shape>
+
+    <line startX="75" startY="280" endX="315" endY="280">
+      <border color="rgba(230,233,240,1)" width="1"/>
+    </line>
+
+    <shape type="text" topLeftX="75" topLeftY="292" width="240" height="60">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.6">
+        <p>设备级阈值优先于全局默认，未配置时回退全局阈值。</p>
+      </content>
+    </shape>
+    <shape type="text" topLeftX="75" topLeftY="350" width="240" height="50">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.6">
+        <p>同设备同指标同级别 30 分钟内不重复告警，业务层判断防风暴。</p>
+      </content>
+    </shape>
+    <shape type="text" topLeftX="75" topLeftY="408" width="240" height="50">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.6">
+        <p>告警记录含处理人、处理时间，支持未处理筛选与闭环管理。</p>
+      </content>
+    </shape>
+
+    <shape type="rect" topLeftX="345" topLeftY="135" width="270" height="375" presetHandlers="6">
+      <fill><fillColor color="rgba(255,255,255,1)"/></fill>
+      <border color="rgba(220,225,235,1)" width="1"/>
+    </shape>
+    <shape type="rect" topLeftX="345" topLeftY="135" width="270" height="50" presetHandlers="6">
+      <fill><fillColor color="rgba(37,99,235,0.08)"/></fill>
+    </shape>
+    <shape type="text" topLeftX="360" topLeftY="145" width="40" height="30">
+      <content textType="headline" fontSize="24" color="rgba(37,99,235,1)" textAlign="left" bold="true"><p>02</p></content>
+    </shape>
+    <shape type="text" topLeftX="405" topLeftY="148" width="200" height="26">
+      <content textType="body" fontSize="17" color="rgba(13,19,38,1)" textAlign="left" bold="true"><p>WebSocket 实时推送</p></content>
+    </shape>
+
+    <shape type="rect" topLeftX="360" topLeftY="200" width="240" height="36" presetHandlers="4">
+      <fill><fillColor color="rgba(13,19,38,0.04)"/></fill>
+    </shape>
+    <shape type="text" topLeftX="360" topLeftY="207" width="240" height="22">
+      <content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="center" verticalAlign="middle">
+        <p>ws://localhost:8080/ws/notify</p>
+      </content>
+    </shape>
+
+    <shape type="text" topLeftX="360" topLeftY="250" width="240" height="20">
+      <content textType="body" fontSize="12" color="rgba(13,19,38,1)" textAlign="left" bold="true"><p>两种消息类型</p></content>
+    </shape>
+
+    <shape type="rect" topLeftX="360" topLeftY="275" width="115" height="50" presetHandlers="4">
+      <fill><fillColor color="rgba(37,99,235,0.08)"/></fill>
+      <border color="rgba(37,99,235,0.3)" width="1"/>
+    </shape>
+    <shape type="text" topLeftX="360" topLeftY="282" width="115" height="18">
+      <content textType="body" fontSize="12" color="rgba(37,99,235,1)" textAlign="center" bold="true"><p>data</p></content>
+    </shape>
+    <shape type="text" topLeftX="360" topLeftY="300" width="115" height="20">
+      <content textType="caption" fontSize="9" color="rgba(83,97,116,1)" textAlign="center"><p>监测数据实时推送</p></content>
+    </shape>
+
+    <shape type="rect" topLeftX="485" topLeftY="275" width="115" height="50" presetHandlers="4">
+      <fill><fillColor color="rgba(201,48,44,0.08)"/></fill>
+      <border color="rgba(201,48,44,0.3)" width="1"/>
+    </shape>
+    <shape type="text" topLeftX="485" topLeftY="282" width="115" height="18">
+      <content textType="body" fontSize="12" color="rgba(201,48,44,1)" textAlign="center" bold="true"><p>alert</p></content>
+    </shape>
+    <shape type="text" topLeftX="485" topLeftY="300" width="115" height="20">
+      <content textType="caption" fontSize="9" color="rgba(83,97,116,1)" textAlign="center"><p>告警事件即时广播</p></content>
+    </shape>
+
+    <line startX="360" startY="345" endX="600" endY="345">
+      <border color="rgba(230,233,240,1)" width="1"/>
+    </line>
+
+    <shape type="text" topLeftX="360" topLeftY="357" width="240" height="50">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.6">
+        <p>秒级到达，前端免轮询实时刷新大屏仪表盘与曲线。</p>
+      </content>
+    </shape>
+    <shape type="text" topLeftX="360" topLeftY="415" width="240" height="50">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.6">
+        <p>30 秒兜底轮询机制，WebSocket 断连时自动降级保证数据不丢。</p>
+      </content>
+    </shape>
+
+    <shape type="rect" topLeftX="630" topLeftY="135" width="270" height="375" presetHandlers="6">
+      <fill><fillColor color="rgba(255,255,255,1)"/></fill>
+      <border color="rgba(220,225,235,1)" width="1"/>
+    </shape>
+    <shape type="rect" topLeftX="630" topLeftY="135" width="270" height="50" presetHandlers="6">
+      <fill><fillColor color="rgba(76,122,90,0.1)"/></fill>
+    </shape>
+    <shape type="text" topLeftX="645" topLeftY="145" width="40" height="30">
+      <content textType="headline" fontSize="24" color="rgba(76,122,90,1)" textAlign="left" bold="true"><p>03</p></content>
+    </shape>
+    <shape type="text" topLeftX="690" topLeftY="148" width="200" height="26">
+      <content textType="body" fontSize="17" color="rgba(13,19,38,1)" textAlign="left" bold="true"><p>环境质量评分</p></content>
+    </shape>
+
+    <shape type="text" topLeftX="645" topLeftY="200" width="240" height="20">
+      <content textType="body" fontSize="12" color="rgba(13,19,38,1)" textAlign="left" bold="true"><p>评分公式（参照 AQI 思想）</p></content>
+    </shape>
+
+    <shape type="rect" topLeftX="645" topLeftY="228" width="240" height="50" presetHandlers="4">
+      <fill><fillColor color="rgba(13,19,38,0.04)"/></fill>
+    </shape>
+    <shape type="text" topLeftX="645" topLeftY="235" width="240" height="36">
+      <content textType="body" fontSize="14" color="rgba(13,19,38,1)" textAlign="center" verticalAlign="middle" lineSpacing="multiple:1.3">
+        <p>得分 = 指标值 / 标准限值 × 100</p>
+      </content>
+    </shape>
+
+    <shape type="text" topLeftX="645" topLeftY="292" width="240" height="20">
+      <content textType="body" fontSize="12" color="rgba(13,19,38,1)" textAlign="left" bold="true"><p>判定规则</p></content>
+    </shape>
+
+    <shape type="rect" topLeftX="645" topLeftY="315" width="115" height="40" presetHandlers="4">
+      <fill><fillColor color="rgba(76,175,80,0.12)"/></fill>
+    </shape>
+    <shape type="text" topLeftX="645" topLeftY="322" width="115" height="18">
+      <content textType="body" fontSize="12" color="rgba(76,175,80,1)" textAlign="center" bold="true"><p>≤ 100</p></content>
+    </shape>
+    <shape type="text" topLeftX="645" topLeftY="340" width="115" height="14">
+      <content textType="caption" fontSize="9" color="rgba(83,97,116,1)" textAlign="center"><p>达标</p></content>
+    </shape>
+
+    <shape type="rect" topLeftX="770" topLeftY="315" width="115" height="40" presetHandlers="4">
+      <fill><fillColor color="rgba(201,48,44,0.12)"/></fill>
+    </shape>
+    <shape type="text" topLeftX="770" topLeftY="322" width="115" height="18">
+      <content textType="body" fontSize="12" color="rgba(201,48,44,1)" textAlign="center" bold="true"><p>&gt; 100</p></content>
+    </shape>
+    <shape type="text" topLeftX="770" topLeftY="340" width="115" height="14">
+      <content textType="caption" fontSize="9" color="rgba(83,97,116,1)" textAlign="center"><p>超标（红色高亮）</p></content>
+    </shape>
+
+    <line startX="645" startY="375" endX="885" endY="375">
+      <border color="rgba(230,233,240,1)" width="1"/>
+    </line>
+
+    <shape type="text" topLeftX="645" topLeftY="387" width="240" height="50">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.6">
+        <p>综合得分为各指标均值，直观反映区域整体环境质量。</p>
+      </content>
+    </shape>
+    <shape type="text" topLeftX="645" topLeftY="445" width="240" height="50">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.6">
+        <p>前端超标指标红色高亮，支持按设备和时间范围查询评分。</p>
+      </content>
+    </shape>
+  </data>
+  <note>
+    <content textType="body">
+      <p>这一页介绍系统的三大核心机制。第一是两级阈值告警，系统将指标值分为正常、WARN预警和ALARM报警三个区间，设备级阈值优先于全局默认，同时有30分钟防重复机制避免告警风暴，告警记录支持处理闭环。第二是WebSocket实时推送，端点为ws://localhost:8080/ws/notify，支持data和alert两种消息类型，数据上报和告警产生时即时广播，前端秒级刷新，另有30秒兜底轮询在连接断开时保证数据不丢失。第三是环境质量评分，参照AQI思想，得分等于指标值除以标准限值乘以100，大于100判定为超标并在前端红色高亮，综合得分为各指标均值，直观反映区域整体环境质量。</p>
+    </content>
+  </note>
+</slide>

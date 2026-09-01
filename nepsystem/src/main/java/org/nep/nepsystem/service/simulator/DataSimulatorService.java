@@ -10,26 +10,24 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * 模拟数据采集器：定时为每台启用设备生成指标数据并调用数据上报（触发阈值告警）。
- * 由 simulator.enabled=true 控制（默认 false，接真实硬件时关闭）。
- * 使用手写 Logger（不依赖 Lombok）。
+ * 模拟数据采集器（业务层升级）：由场景引擎 SimulationProfile 驱动，
+ * 模拟正常波动/日周期/早晚高峰/突发污染/连续超标/设备离线与恢复/异常数据。
+ * 每台设备一个独立场景实例（按设备 ID 种子化随机数，可复现）。
+ * 仍由 simulator.enabled=true 控制；仍调用 MonitorDataService.report()，
+ * 因此 WebSocket 实时推送与阈值告警链路完全不变。
  */
 @Service
 @ConditionalOnProperty(prefix = "simulator", name = "enabled", havingValue = "true")
 public class DataSimulatorService {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DataSimulatorService.class);
-
-    private final Random random = new Random();
 
     @Autowired
     private SimulatorConfig config;
@@ -40,58 +38,47 @@ public class DataSimulatorService {
     @Autowired
     private MonitorDataService monitorDataService;
 
+    /** 全局轮次计数 */
+    private final AtomicLong roundCounter = new AtomicLong(0);
+
+    /** 设备场景实例: deviceId -> profile */
+    private final Map<Long, SimulationProfile> profiles = new ConcurrentHashMap<>();
+
     /**
-     * 定时任务：每 intervalMs 毫秒为一轮，遍历全部设备生成数据
+     * 定时任务：每 intervalMs 毫秒为一轮，遍历全部启用设备生成数据。
+     * 离线窗口内的设备本轮不产生数据（由质量扫描标记离线，恢复后 report() 自动置回在线）。
      */
     @Scheduled(fixedDelayString = "${simulator.interval-ms:5000}")
     public void simulate() {
         if (!config.isEnabled()) {
             return;
         }
+        long round = roundCounter.incrementAndGet();
         List<Devices> devices = devicesDao.selectList(new QueryWrapper<Devices>()
                 .ne("status", 2)); // 排除停用设备
         for (Devices d : devices) {
             try {
-                List<Map<String, Object>> items = generateItems(d.getType());
+                SimulationProfile profile = profiles.computeIfAbsent(d.getId().longValue(),
+                        id -> new SimulationProfile(new Random(id * 7919L + 2026L),
+                                config.isScenarioEnabled(),
+                                config.getPollutionIntervalRounds(),
+                                config.getPollutionDurationRounds(),
+                                config.getOfflineIntervalRounds(),
+                                config.getOfflineDurationRounds(),
+                                config.getAbnormalProbability()));
+                if (profile.isOffline(round)) {
+                    log.debug("模拟器：{} 处于离线窗口，本轮跳过", d.getDeviceCode());
+                    continue;
+                }
+                List<Map<String, Object>> items = profile.generate(d.getType(), round, new java.util.Date());
+                if (items == null || items.isEmpty()) {
+                    continue;
+                }
                 monitorDataService.report(d.getDeviceCode(), items, new java.util.Date());
                 log.debug("模拟上报 {} -> {} 条", d.getDeviceCode(), items.size());
             } catch (Exception e) {
                 log.warn("模拟上报失败 {}: {}", d.getDeviceCode(), e.getMessage());
             }
         }
-    }
-
-    /** 按设备类型生成指标数据（与 sensors 字典约定一致） */
-    private List<Map<String, Object>> generateItems(String type) {
-        List<Map<String, Object>> items = new ArrayList<>();
-        if ("AIR".equals(type)) {
-            items.add(item("TEMP", round(18 + random.nextDouble() * 17)));          // 18-35 ℃
-            items.add(item("HUMI", round(30 + random.nextDouble() * 50)));          // 30-80 %
-            double pm25 = random.nextDouble() * 150;
-            if (random.nextDouble() < 0.05) {
-                pm25 = 150 + random.nextDouble() * 150;                             // 5% 概率峰值 150-300
-            }
-            items.add(item("PM25", round(pm25)));
-            items.add(item("CO2", round(350 + random.nextDouble() * 850)));         // 350-1200 ppm
-        } else if ("WATER".equals(type)) {
-            items.add(item("PH", round(6.5 + random.nextDouble() * 2.5)));          // 6.5-9.0
-            items.add(item("TURBIDITY", round(random.nextDouble() * 20)));          // 0-20 NTU
-            items.add(item("DO", round(4 + random.nextDouble() * 8)));              // 4-12 mg/L
-            items.add(item("TEMP", round(15 + random.nextDouble() * 15)));          // 15-30 ℃
-        } else if ("NOISE".equals(type)) {
-            items.add(item("NOISE", round(30 + random.nextDouble() * 65)));         // 30-95 dB
-        }
-        return items;
-    }
-
-    private Map<String, Object> item(String sensorCode, double value) {
-        Map<String, Object> m = new HashMap<>();
-        m.put("sensorCode", sensorCode);
-        m.put("value", value);
-        return m;
-    }
-
-    private double round(double v) {
-        return BigDecimal.valueOf(v).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 }

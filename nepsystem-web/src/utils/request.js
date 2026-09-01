@@ -18,6 +18,10 @@ request.interceptors.request.use(config => {
 
 request.interceptors.response.use(
   response => {
+    // 预存问题修复：blob 响应（CSV 导出等）直接放行，不做 {code,message,data} 解包
+    if (response.config.responseType === 'blob') {
+      return response.data
+    }
     const res = response.data
     if (res.code === 200) {
       return res.data

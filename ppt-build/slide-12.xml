@@ -1,0 +1,217 @@
+<slide xmlns="https://www.larkoffice.com/sml/2.0">
+  <style>
+    <fill>
+      <fillColor color="rgb(242,244,248)"/>
+    </fill>
+  </style>
+  <data>
+    <shape type="text" topLeftX="60" topLeftY="40" width="820" height="42">
+      <content textType="headline" fontSize="26" color="rgba(13,19,38,1)" textAlign="left" bold="true" letterSpacing="0.5">
+        <p>双模式部署：Windows 本机一键启动，Docker Compose 容器化</p>
+      </content>
+    </shape>
+    <line startX="60" startY="90" endX="100" endY="90">
+      <border color="rgba(37,99,235,1)" width="3"/>
+    </line>
+    <shape type="text" topLeftX="60" topLeftY="98" width="500" height="20">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left">
+        <p>部署方案 · MySQL 初始化 · Spring Boot Jar · Vue3 Nginx · Docker Compose</p>
+      </content>
+    </shape>
+
+    <shape type="rect" topLeftX="60" topLeftY="130" width="420" height="375" presetHandlers="6">
+      <fill><fillColor color="rgba(255,255,255,1)"/></fill>
+      <border color="rgba(220,225,235,1)" width="1"/>
+    </shape>
+    <shape type="rect" topLeftX="60" topLeftY="130" width="420" height="44" presetHandlers="6">
+      <fill><fillColor color="rgba(37,99,235,0.1)"/></fill>
+    </shape>
+    <shape type="text" topLeftX="75" topLeftY="140" width="300" height="24">
+      <content textType="body" fontSize="16" color="rgba(13,19,38,1)" textAlign="left" bold="true"><p>方式一：Windows 本机部署（推荐）</p></content>
+    </shape>
+
+    <shape type="ellipse" topLeftX="80" topLeftY="192" width="28" height="28">
+      <fill><fillColor color="rgba(37,99,235,1)"/></fill>
+    </shape>
+    <shape type="text" topLeftX="80" topLeftY="196" width="28" height="20">
+      <content textType="body" fontSize="13" color="rgba(255,255,255,1)" textAlign="center" bold="true"><p>1</p></content>
+    </shape>
+    <shape type="text" topLeftX="118" topLeftY="193" width="350" height="22">
+      <content textType="body" fontSize="13" color="rgba(13,19,38,1)" textAlign="left" bold="true"><p>数据库初始化</p></content>
+    </shape>
+    <shape type="text" topLeftX="118" topLeftY="215" width="350" height="30">
+      <content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.4">
+        <p>mysql -uroot -p &lt; init.sql，可选导入 generate_demo_data.sql 演示数据</p>
+      </content>
+    </shape>
+
+    <line startX="94" startY="220" endX="94" endY="248">
+      <border color="rgba(37,99,235,0.4)" width="2"/>
+      <endArrow type="arrow" widthScale="sm" heightScale="sm"/>
+    </line>
+
+    <shape type="ellipse" topLeftX="80" topLeftY="253" width="28" height="28">
+      <fill><fillColor color="rgba(37,99,235,1)"/></fill>
+    </shape>
+    <shape type="text" topLeftX="80" topLeftY="257" width="28" height="20">
+      <content textType="body" fontSize="13" color="rgba(255,255,255,1)" textAlign="center" bold="true"><p>2</p></content>
+    </shape>
+    <shape type="text" topLeftX="118" topLeftY="254" width="350" height="22">
+      <content textType="body" fontSize="13" color="rgba(13,19,38,1)" textAlign="left" bold="true"><p>后端启动</p></content>
+    </shape>
+    <shape type="text" topLeftX="118" topLeftY="276" width="350" height="30">
+      <content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.4">
+        <p>mvn clean package -DskipTests → java -jar target/nepsystem.jar，端口 8080</p>
+      </content>
+    </shape>
+
+    <line startX="94" startY="281" endX="94" endY="309">
+      <border color="rgba(37,99,235,0.4)" width="2"/>
+      <endArrow type="arrow" widthScale="sm" heightScale="sm"/>
+    </line>
+
+    <shape type="ellipse" topLeftX="80" topLeftY="314" width="28" height="28">
+      <fill><fillColor color="rgba(37,99,235,1)"/></fill>
+    </shape>
+    <shape type="text" topLeftX="80" topLeftY="318" width="28" height="20">
+      <content textType="body" fontSize="13" color="rgba(255,255,255,1)" textAlign="center" bold="true"><p>3</p></content>
+    </shape>
+    <shape type="text" topLeftX="118" topLeftY="315" width="350" height="22">
+      <content textType="body" fontSize="13" color="rgba(13,19,38,1)" textAlign="left" bold="true"><p>前端开发模式</p></content>
+    </shape>
+    <shape type="text" topLeftX="118" topLeftY="337" width="350" height="30">
+      <content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.4">
+        <p>npm install --registry=npmmirror.com → npm run dev，端口 5173，自动代理 /api 与 /ws</p>
+      </content>
+    </shape>
+
+    <line startX="94" startY="342" endX="94" endY="370">
+      <border color="rgba(37,99,235,0.4)" width="2"/>
+      <endArrow type="arrow" widthScale="sm" heightScale="sm"/>
+    </line>
+
+    <shape type="ellipse" topLeftX="80" topLeftY="375" width="28" height="28">
+      <fill><fillColor color="rgba(37,99,235,1)"/></fill>
+    </shape>
+    <shape type="text" topLeftX="80" topLeftY="379" width="28" height="20">
+      <content textType="body" fontSize="13" color="rgba(255,255,255,1)" textAlign="center" bold="true"><p>4</p></content>
+    </shape>
+    <shape type="text" topLeftX="118" topLeftY="376" width="350" height="22">
+      <content textType="body" fontSize="13" color="rgba(13,19,38,1)" textAlign="left" bold="true"><p>前端生产模式（Nginx）</p></content>
+    </shape>
+    <shape type="text" topLeftX="118" topLeftY="398" width="350" height="40">
+      <content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.4">
+        <p>npm run build 产出 dist/，Nginx 托管静态文件，反代 /api 到 8080，/ws 升级 WebSocket</p>
+      </content>
+    </shape>
+
+    <shape type="rect" topLeftX="500" topLeftY="130" width="400" height="175" presetHandlers="6">
+      <fill><fillColor color="rgba(255,255,255,1)"/></fill>
+      <border color="rgba(220,225,235,1)" width="1"/>
+    </shape>
+    <shape type="rect" topLeftX="500" topLeftY="130" width="400" height="44" presetHandlers="6">
+      <fill><fillColor color="rgba(76,122,90,0.1)"/></fill>
+    </shape>
+    <shape type="text" topLeftX="515" topLeftY="140" width="370" height="24">
+      <content textType="body" fontSize="16" color="rgba(13,19,38,1)" textAlign="left" bold="true"><p>方式二：Docker Compose（可选）</p></content>
+    </shape>
+
+    <shape type="rect" topLeftX="515" topLeftY="188" width="115" height="48" presetHandlers="4">
+      <fill><fillColor color="rgba(76,122,90,0.1)"/></fill>
+      <border color="rgba(76,122,90,0.3)" width="1"/>
+    </shape>
+    <shape type="text" topLeftX="515" topLeftY="195" width="115" height="18">
+      <content textType="body" fontSize="12" color="rgba(76,122,90,1)" textAlign="center" bold="true"><p>MySQL 8.0</p></content>
+    </shape>
+    <shape type="text" topLeftX="515" topLeftY="213" width="115" height="18">
+      <content textType="caption" fontSize="9" color="rgba(83,97,116,1)" textAlign="center"><p>端口 3306 · 自动 init.sql</p></content>
+    </shape>
+
+    <shape type="rect" topLeftX="642" topLeftY="188" width="115" height="48" presetHandlers="4">
+      <fill><fillColor color="rgba(76,122,90,0.1)"/></fill>
+      <border color="rgba(76,122,90,0.3)" width="1"/>
+    </shape>
+    <shape type="text" topLeftX="642" topLeftY="195" width="115" height="18">
+      <content textType="body" fontSize="12" color="rgba(76,122,90,1)" textAlign="center" bold="true"><p>Backend</p></content>
+    </shape>
+    <shape type="text" topLeftX="642" topLeftY="213" width="115" height="18">
+      <content textType="caption" fontSize="9" color="rgba(83,97,116,1)" textAlign="center" wrap="false"><p>端口 8080 · 连 MySQL</p></content>
+    </shape>
+
+    <shape type="rect" topLeftX="769" topLeftY="188" width="115" height="48" presetHandlers="4">
+      <fill><fillColor color="rgba(76,122,90,0.1)"/></fill>
+      <border color="rgba(76,122,90,0.3)" width="1"/>
+    </shape>
+    <shape type="text" topLeftX="769" topLeftY="195" width="115" height="18">
+      <content textType="body" fontSize="12" color="rgba(76,122,90,1)" textAlign="center" bold="true"><p>Nginx</p></content>
+    </shape>
+    <shape type="text" topLeftX="769" topLeftY="213" width="115" height="18">
+      <content textType="caption" fontSize="9" color="rgba(83,97,116,1)" textAlign="center" wrap="false"><p>端口 80 · 托管 + 反代</p></content>
+    </shape>
+
+    <line startX="630" startY="212" endX="642" endY="212">
+      <border color="rgba(76,122,90,0.5)" width="2"/>
+      <endArrow type="arrow" widthScale="sm" heightScale="sm"/>
+    </line>
+    <line startX="757" startY="212" endX="769" endY="212">
+      <border color="rgba(76,122,90,0.5)" width="2"/>
+      <endArrow type="arrow" widthScale="sm" heightScale="sm"/>
+    </line>
+
+    <shape type="text" topLeftX="515" topLeftY="250" width="370" height="45">
+      <content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.5">
+        <p>三服务一键编排：docker-compose up -d，MySQL 自动执行 init.sql 初始化，后端通过容器内网连接数据库，Nginx 托管前端静态资源并反代 API 与 WebSocket。</p>
+      </content>
+    </shape>
+
+    <shape type="rect" topLeftX="500" topLeftY="320" width="400" height="185" presetHandlers="6">
+      <fill><fillColor color="rgba(255,255,255,1)"/></fill>
+      <border color="rgba(220,225,235,1)" width="1"/>
+    </shape>
+    <shape type="text" topLeftX="515" topLeftY="330" width="370" height="24">
+      <content textType="body" fontSize="15" color="rgba(13,19,38,1)" textAlign="left" bold="true"><p>常见问题排查</p></content>
+    </shape>
+
+    <shape type="text" topLeftX="515" topLeftY="362" width="180" height="20">
+      <content textType="caption" fontSize="10" color="rgba(201,48,44,1)" textAlign="left" bold="true"><p>数据库连接失败</p></content>
+    </shape>
+    <shape type="text" topLeftX="700" topLeftY="362" width="190" height="20">
+      <content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left"><p>确认 MySQL 运行、密码正确</p></content>
+    </shape>
+    <line startX="515" startY="386" endX="885" endY="386">
+      <border color="rgba(230,233,240,1)" width="1"/>
+    </line>
+
+    <shape type="text" topLeftX="515" topLeftY="394" width="180" height="20">
+      <content textType="caption" fontSize="10" color="rgba(201,48,44,1)" textAlign="left" bold="true"><p>mvn 无法删除旧 Jar</p></content>
+    </shape>
+    <shape type="text" topLeftX="700" topLeftY="394" width="190" height="20">
+      <content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left"><p>先停掉运行中的 java 进程</p></content>
+    </shape>
+    <line startX="515" startY="418" endX="885" endY="418">
+      <border color="rgba(230,233,240,1)" width="1"/>
+    </line>
+
+    <shape type="text" topLeftX="515" topLeftY="426" width="180" height="20">
+      <content textType="caption" fontSize="10" color="rgba(201,48,44,1)" textAlign="left" bold="true"><p>大屏无数据</p></content>
+    </shape>
+    <shape type="text" topLeftX="700" topLeftY="426" width="190" height="20">
+      <content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left"><p>确认 simulator.enabled=true</p></content>
+    </shape>
+    <line startX="515" startY="450" endX="885" endY="450">
+      <border color="rgba(230,233,240,1)" width="1"/>
+    </line>
+
+    <shape type="text" topLeftX="515" topLeftY="458" width="180" height="20">
+      <content textType="caption" fontSize="10" color="rgba(201,48,44,1)" textAlign="left" bold="true"><p>npm install 失败</p></content>
+    </shape>
+    <shape type="text" topLeftX="700" topLeftY="458" width="190" height="20">
+      <content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left"><p>使用 npmmirror 镜像源</p></content>
+    </shape>
+  </data>
+  <note>
+    <content textType="body">
+      <p>部署方案提供两种模式。方式一是Windows本机部署，推荐用于开发和演示，共四步：第一步数据库初始化，执行init.sql建表，可选导入演示数据；第二步后端启动，mvn打包后java -jar运行，端口8080；第三步前端开发模式，npm install后npm run dev，端口5173，Vite自动代理/api和/ws到后端；第四步前端生产模式，npm run build产出dist目录，用Nginx托管静态文件并反代API和WebSocket。方式二是Docker Compose容器化部署，三个服务一键编排：MySQL 8.0自动初始化，后端Spring Boot容器，Nginx托管前端并反代。右下角是常见问题排查表，包括数据库连接失败、mvn无法删除旧Jar、大屏无数据、npm install失败等问题的处理方法。</p>
+    </content>
+  </note>
+</slide>

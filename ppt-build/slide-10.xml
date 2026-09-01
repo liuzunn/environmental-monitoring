@@ -1,0 +1,165 @@
+<slide xmlns="https://www.larkoffice.com/sml/2.0">
+  <style>
+    <fill>
+      <fillColor color="rgb(242,244,248)"/>
+    </fill>
+  </style>
+  <data>
+    <shape type="text" topLeftX="60" topLeftY="40" width="820" height="42">
+      <content textType="headline" fontSize="26" color="rgba(13,19,38,1)" textAlign="left" bold="true" letterSpacing="0.5">
+        <p>RESTful API 覆盖九大模块，统一响应格式与错误码</p>
+      </content>
+    </shape>
+    <line startX="60" startY="90" endX="100" endY="90">
+      <border color="rgba(37,99,235,1)" width="3"/>
+    </line>
+    <shape type="text" topLeftX="60" topLeftY="98" width="500" height="20">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left">
+        <p>接口设计 · Base URL: http://localhost:8080/api · 统一返回 {code, message, data}</p>
+      </content>
+    </shape>
+
+    <table topLeftX="60" topLeftY="130" width="540" height="350">
+      <colgroup>
+        <col width="100"/>
+        <col width="130"/>
+        <col width="50"/>
+        <col width="260"/>
+      </colgroup>
+      <tr height="32">
+        <td>
+          <fill><fillColor color="rgba(13,19,38,1)"/></fill>
+          <content textType="body" fontSize="11" bold="true" color="rgba(255,255,255,1)" textAlign="center"><p>模块</p></content>
+        </td>
+        <td>
+          <fill><fillColor color="rgba(13,19,38,1)"/></fill>
+          <content textType="body" fontSize="11" bold="true" color="rgba(255,255,255,1)" textAlign="center"><p>路径前缀</p></content>
+        </td>
+        <td>
+          <fill><fillColor color="rgba(13,19,38,1)"/></fill>
+          <content textType="body" fontSize="11" bold="true" color="rgba(255,255,255,1)" textAlign="center"><p>接口数</p></content>
+        </td>
+        <td>
+          <fill><fillColor color="rgba(13,19,38,1)"/></fill>
+          <content textType="body" fontSize="11" bold="true" color="rgba(255,255,255,1)" textAlign="center"><p>核心功能</p></content>
+        </td>
+      </tr>
+      <tr height="30">
+        <td><content textType="body" fontSize="10" color="rgba(13,19,38,1)" textAlign="center"><p>认证</p></content></td>
+        <td><content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="center"><p>/api/auth</p></content></td>
+        <td><content textType="body" fontSize="10" color="rgba(37,99,235,1)" textAlign="center" bold="true"><p>2</p></content></td>
+        <td><content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left"><p>登录、登出，UUID Token</p></content></td>
+      </tr>
+      <tr height="30">
+        <td><content textType="body" fontSize="10" color="rgba(13,19,38,1)" textAlign="center"><p>设备管理</p></content></td>
+        <td><content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="center"><p>/api/devices</p></content></td>
+        <td><content textType="body" fontSize="10" color="rgba(37,99,235,1)" textAlign="center" bold="true"><p>7</p></content></td>
+        <td><content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left"><p>增删改查、在线统计、最新数据</p></content></td>
+      </tr>
+      <tr height="30">
+        <td><content textType="body" fontSize="10" color="rgba(13,19,38,1)" textAlign="center"><p>监测数据</p></content></td>
+        <td><content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="center"><p>/api/data</p></content></td>
+        <td><content textType="body" fontSize="10" color="rgba(37,99,235,1)" textAlign="center" bold="true"><p>6</p></content></td>
+        <td><content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left"><p>上报、最新、历史、趋势、CSV 导出</p></content></td>
+      </tr>
+      <tr height="30">
+        <td><content textType="body" fontSize="10" color="rgba(13,19,38,1)" textAlign="center"><p>告警管理</p></content></td>
+        <td><content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="center"><p>/api/alerts</p></content></td>
+        <td><content textType="body" fontSize="10" color="rgba(37,99,235,1)" textAlign="center" bold="true"><p>4</p></content></td>
+        <td><content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left"><p>分页、处理闭环、未处理、7 天统计</p></content></td>
+      </tr>
+      <tr height="30">
+        <td><content textType="body" fontSize="10" color="rgba(13,19,38,1)" textAlign="center"><p>阈值配置</p></content></td>
+        <td><content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="center"><p>/api/thresholds</p></content></td>
+        <td><content textType="body" fontSize="10" color="rgba(37,99,235,1)" textAlign="center" bold="true"><p>5</p></content></td>
+        <td><content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left"><p>设备级 / 全局阈值增删改查</p></content></td>
+      </tr>
+      <tr height="30">
+        <td><content textType="body" fontSize="10" color="rgba(13,19,38,1)" textAlign="center"><p>统计概览</p></content></td>
+        <td><content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="center"><p>/api/stats</p></content></td>
+        <td><content textType="body" fontSize="10" color="rgba(37,99,235,1)" textAlign="center" bold="true"><p>3</p></content></td>
+        <td><content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left"><p>总览、质量评分、上报量 Top10</p></content></td>
+      </tr>
+      <tr height="30">
+        <td><content textType="body" fontSize="10" color="rgba(13,19,38,1)" textAlign="center"><p>用户管理</p></content></td>
+        <td><content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="center"><p>/api/users</p></content></td>
+        <td><content textType="body" fontSize="10" color="rgba(37,99,235,1)" textAlign="center" bold="true"><p>6</p></content></td>
+        <td><content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left"><p>增删改查、角色、启停</p></content></td>
+      </tr>
+      <tr height="30">
+        <td><content textType="body" fontSize="10" color="rgba(13,19,38,1)" textAlign="center"><p>实时通信</p></content></td>
+        <td><content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="center"><p>/ws/notify</p></content></td>
+        <td><content textType="body" fontSize="10" color="rgba(37,99,235,1)" textAlign="center" bold="true"><p>1</p></content></td>
+        <td><content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left"><p>WebSocket data / alert 实时推送</p></content></td>
+      </tr>
+    </table>
+
+    <shape type="text" topLeftX="630" topLeftY="130" width="270" height="24">
+      <content textType="body" fontSize="15" color="rgba(13,19,38,1)" textAlign="left" bold="true">
+        <p>统一响应格式</p>
+      </content>
+    </shape>
+
+    <shape type="rect" topLeftX="630" topLeftY="162" width="270" height="108" presetHandlers="4">
+      <fill><fillColor color="rgba(13,19,38,0.04)"/></fill>
+    </shape>
+    <shape type="text" topLeftX="645" topLeftY="172" width="240" height="90">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.7">
+        <p>{</p>
+        <p>　"code": 200,</p>
+        <p>　"message": "操作成功",</p>
+        <p>　"data": { ... }</p>
+        <p>}</p>
+      </content>
+    </shape>
+
+    <shape type="text" topLeftX="630" topLeftY="280" width="270" height="24">
+      <content textType="body" fontSize="15" color="rgba(13,19,38,1)" textAlign="left" bold="true">
+        <p>错误码约定</p>
+      </content>
+    </shape>
+
+    <shape type="rect" topLeftX="630" topLeftY="312" width="270" height="120" presetHandlers="4">
+      <fill><fillColor color="rgba(255,255,255,1)"/></fill>
+      <border color="rgba(220,225,235,1)" width="1"/>
+    </shape>
+    <shape type="text" topLeftX="645" topLeftY="322" width="60" height="20">
+      <content textType="body" fontSize="12" color="rgba(76,175,80,1)" textAlign="left" bold="true"><p>200</p></content>
+    </shape>
+    <shape type="text" topLeftX="710" topLeftY="322" width="180" height="20">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left"><p>成功</p></content>
+    </shape>
+    <shape type="text" topLeftX="645" topLeftY="348" width="60" height="20">
+      <content textType="body" fontSize="12" color="rgba(255,152,0,1)" textAlign="left" bold="true"><p>400</p></content>
+    </shape>
+    <shape type="text" topLeftX="710" topLeftY="348" width="180" height="20">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left"><p>参数错误</p></content>
+    </shape>
+    <shape type="text" topLeftX="645" topLeftY="374" width="60" height="20">
+      <content textType="body" fontSize="12" color="rgba(201,48,44,1)" textAlign="left" bold="true"><p>401</p></content>
+    </shape>
+    <shape type="text" topLeftX="710" topLeftY="374" width="180" height="20">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left"><p>未认证 / 账号密码错误</p></content>
+    </shape>
+    <shape type="text" topLeftX="645" topLeftY="400" width="60" height="20">
+      <content textType="body" fontSize="12" color="rgba(201,48,44,1)" textAlign="left" bold="true"><p>500</p></content>
+    </shape>
+    <shape type="text" topLeftX="710" topLeftY="400" width="180" height="20">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left"><p>业务 / 系统异常</p></content>
+    </shape>
+
+    <shape type="rect" topLeftX="630" topLeftY="450" width="270" height="55" presetHandlers="4">
+      <fill><fillColor color="rgba(37,99,235,0.06)"/></fill>
+    </shape>
+    <shape type="text" topLeftX="645" topLeftY="458" width="240" height="40">
+      <content textType="caption" fontSize="10" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.5">
+        <p>全局异常处理器统一捕获，Result&lt;T&gt; 封装前后端契约，登录后请求头携带 Authorization: Bearer {token}。</p>
+      </content>
+    </shape>
+  </data>
+  <note>
+    <content textType="body">
+      <p>接口设计采用RESTful风格，Base URL为http://localhost:8080/api，统一返回格式为code、message、data三字段，code=200表示成功。左侧表格列出了九大模块共34个接口：认证模块2个接口，设备管理7个，监测数据6个，告警管理4个，阈值配置5个，统计概览3个，用户管理6个，指标字典1个，另有WebSocket实时通信端点。右侧是统一响应格式示例和错误码约定：200成功、400参数错误、401未认证、500业务或系统异常。系统通过全局异常处理器统一捕获异常，用Result泛型封装前后端契约，登录后请求头携带Authorization Bearer Token进行认证。</p>
+    </content>
+  </note>
+</slide>

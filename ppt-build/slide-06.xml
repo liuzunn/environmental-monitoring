@@ -1,0 +1,200 @@
+<slide xmlns="https://www.larkoffice.com/sml/2.0">
+  <style>
+    <fill>
+      <fillColor color="rgb(242,244,248)"/>
+    </fill>
+  </style>
+  <data>
+    <shape type="text" topLeftX="60" topLeftY="40" width="800" height="42">
+      <content textType="headline" fontSize="26" color="rgba(13,19,38,1)" textAlign="left" bold="true" letterSpacing="0.5">
+        <p>八表结构，指标字典驱动与时序复合索引</p>
+      </content>
+    </shape>
+    <line startX="60" startY="90" endX="100" endY="90">
+      <border color="rgba(37,99,235,1)" width="3"/>
+    </line>
+    <shape type="text" topLeftX="60" topLeftY="98" width="400" height="20">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left">
+        <p>系统总体设计 · 数据库设计（MySQL · nep 库 · utf8mb4 · InnoDB）</p>
+      </content>
+    </shape>
+
+    <shape type="text" topLeftX="60" topLeftY="128" width="200" height="20">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left" bold="true">
+        <p>ER 关系概览</p>
+      </content>
+    </shape>
+
+    <shape type="rect" topLeftX="70" topLeftY="155" width="95" height="42" presetHandlers="3">
+      <fill><fillColor color="rgba(255,255,255,1)"/></fill>
+      <border color="rgba(37,99,235,0.5)" width="1"/>
+    </shape>
+    <shape type="text" topLeftX="70" topLeftY="160" width="95" height="18">
+      <content textType="body" fontSize="11" color="rgba(13,19,38,1)" textAlign="center" bold="true"><p>regions</p></content>
+    </shape>
+    <shape type="text" topLeftX="70" topLeftY="178" width="95" height="15">
+      <content textType="caption" fontSize="9" color="rgba(83,97,116,1)" textAlign="center"><p>区域（树形）</p></content>
+    </shape>
+
+    <shape type="rect" topLeftX="225" topLeftY="155" width="95" height="42" presetHandlers="3">
+      <fill><fillColor color="rgba(37,99,235,0.12)"/></fill>
+      <border color="rgba(37,99,235,0.7)" width="2"/>
+    </shape>
+    <shape type="text" topLeftX="225" topLeftY="160" width="95" height="18">
+      <content textType="body" fontSize="11" color="rgba(13,19,38,1)" textAlign="center" bold="true"><p>devices</p></content>
+    </shape>
+    <shape type="text" topLeftX="225" topLeftY="178" width="95" height="15">
+      <content textType="caption" fontSize="9" color="rgba(83,97,116,1)" textAlign="center"><p>监测设备</p></content>
+    </shape>
+
+    <shape type="rect" topLeftX="380" topLeftY="155" width="105" height="42" presetHandlers="3">
+      <fill><fillColor color="rgba(201,48,44,0.1)"/></fill>
+      <border color="rgba(201,48,44,0.6)" width="2"/>
+    </shape>
+    <shape type="text" topLeftX="380" topLeftY="160" width="105" height="18">
+      <content textType="body" fontSize="11" color="rgba(13,19,38,1)" textAlign="center" bold="true"><p>monitor_data</p></content>
+    </shape>
+    <shape type="text" topLeftX="380" topLeftY="178" width="105" height="15">
+      <content textType="caption" fontSize="9" color="rgba(83,97,116,1)" textAlign="center"><p>监测数据（核心）</p></content>
+    </shape>
+
+    <shape type="rect" topLeftX="380" topLeftY="240" width="105" height="42" presetHandlers="3">
+      <fill><fillColor color="rgba(255,255,255,1)"/></fill>
+      <border color="rgba(100,110,130,0.5)" width="1" dashArray="dash"/>
+    </shape>
+    <shape type="text" topLeftX="380" topLeftY="245" width="105" height="18">
+      <content textType="body" fontSize="11" color="rgba(13,19,38,1)" textAlign="center" bold="true"><p>sensors</p></content>
+    </shape>
+    <shape type="text" topLeftX="380" topLeftY="263" width="105" height="15">
+      <content textType="caption" fontSize="9" color="rgba(83,97,116,1)" textAlign="center"><p>指标字典</p></content>
+    </shape>
+
+    <shape type="rect" topLeftX="225" topLeftY="240" width="95" height="42" presetHandlers="3">
+      <fill><fillColor color="rgba(255,255,255,1)"/></fill>
+      <border color="rgba(37,99,235,0.5)" width="1"/>
+    </shape>
+    <shape type="text" topLeftX="225" topLeftY="245" width="95" height="18">
+      <content textType="body" fontSize="11" color="rgba(13,19,38,1)" textAlign="center" bold="true"><p>thresholds</p></content>
+    </shape>
+    <shape type="text" topLeftX="225" topLeftY="263" width="95" height="15">
+      <content textType="caption" fontSize="9" color="rgba(83,97,116,1)" textAlign="center"><p>告警阈值</p></content>
+    </shape>
+
+    <shape type="rect" topLeftX="225" topLeftY="325" width="95" height="42" presetHandlers="3">
+      <fill><fillColor color="rgba(201,48,44,0.1)"/></fill>
+      <border color="rgba(201,48,44,0.6)" width="2"/>
+    </shape>
+    <shape type="text" topLeftX="225" topLeftY="330" width="95" height="18">
+      <content textType="body" fontSize="11" color="rgba(13,19,38,1)" textAlign="center" bold="true"><p>alerts</p></content>
+    </shape>
+    <shape type="text" topLeftX="225" topLeftY="348" width="95" height="15">
+      <content textType="caption" fontSize="9" color="rgba(83,97,116,1)" textAlign="center"><p>告警记录（核心）</p></content>
+    </shape>
+
+    <shape type="rect" topLeftX="70" topLeftY="240" width="95" height="42" presetHandlers="3">
+      <fill><fillColor color="rgba(255,255,255,1)"/></fill>
+      <border color="rgba(100,110,130,0.4)" width="1" dashArray="dot"/>
+    </shape>
+    <shape type="text" topLeftX="70" topLeftY="245" width="95" height="18">
+      <content textType="body" fontSize="11" color="rgba(13,19,38,1)" textAlign="center" bold="true"><p>admins</p></content>
+    </shape>
+    <shape type="text" topLeftX="70" topLeftY="263" width="95" height="15">
+      <content textType="caption" fontSize="9" color="rgba(83,97,116,1)" textAlign="center"><p>管理员</p></content>
+    </shape>
+
+    <shape type="rect" topLeftX="70" topLeftY="325" width="95" height="42" presetHandlers="3">
+      <fill><fillColor color="rgba(255,255,255,1)"/></fill>
+      <border color="rgba(100,110,130,0.4)" width="1" dashArray="dot"/>
+    </shape>
+    <shape type="text" topLeftX="70" topLeftY="330" width="95" height="18">
+      <content textType="body" fontSize="11" color="rgba(13,19,38,1)" textAlign="center" bold="true"><p>users</p></content>
+    </shape>
+    <shape type="text" topLeftX="70" topLeftY="348" width="95" height="15">
+      <content textType="caption" fontSize="9" color="rgba(83,97,116,1)" textAlign="center"><p>用户表</p></content>
+    </shape>
+
+    <line startX="165" startY="176" endX="225" endY="176">
+      <border color="rgba(100,110,130,1)" width="2"/>
+      <endArrow type="arrow" widthScale="sm" heightScale="sm"/>
+    </line>
+    <line startX="320" startY="176" endX="380" endY="176">
+      <border color="rgba(100,110,130,1)" width="2"/>
+      <endArrow type="arrow" widthScale="sm" heightScale="sm"/>
+    </line>
+    <line startX="272" startY="197" endX="272" endY="240">
+      <border color="rgba(100,110,130,1)" width="2"/>
+      <endArrow type="arrow" widthScale="sm" heightScale="sm"/>
+    </line>
+    <line startX="272" startY="282" endX="272" endY="325">
+      <border color="rgba(100,110,130,1)" width="2"/>
+      <endArrow type="arrow" widthScale="sm" heightScale="sm"/>
+    </line>
+    <line startX="432" startY="197" endX="432" endY="240">
+      <border color="rgba(100,110,130,1)" width="2" dashArray="dash"/>
+      <endArrow type="arrow" widthScale="sm" heightScale="sm"/>
+    </line>
+
+    <shape type="text" topLeftX="530" topLeftY="128" width="200" height="20">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left" bold="true">
+        <p>核心设计决策</p>
+      </content>
+    </shape>
+
+    <shape type="rect" topLeftX="530" topLeftY="155" width="370" height="78" presetHandlers="4">
+      <fill><fillColor color="rgba(255,255,255,1)"/></fill>
+      <border color="rgba(220,225,235,1)" width="1"/>
+    </shape>
+    <shape type="text" topLeftX="545" topLeftY="163" width="340" height="20">
+      <content textType="body" fontSize="13" color="rgba(37,99,235,1)" textAlign="left" bold="true"><p>时序复合索引</p></content>
+    </shape>
+    <shape type="text" topLeftX="545" topLeftY="185" width="340" height="42">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.5">
+        <p>monitor_data / alerts 用 BIGINT 自增主键，建立 (device_id, report_time) 复合索引支撑时序查询与历史趋势聚合。</p>
+      </content>
+    </shape>
+
+    <shape type="rect" topLeftX="530" topLeftY="243" width="370" height="78" presetHandlers="4">
+      <fill><fillColor color="rgba(255,255,255,1)"/></fill>
+      <border color="rgba(220,225,235,1)" width="1"/>
+    </shape>
+    <shape type="text" topLeftX="545" topLeftY="251" width="340" height="20">
+      <content textType="body" fontSize="13" color="rgba(37,99,235,1)" textAlign="left" bold="true"><p>指标字典驱动</p></content>
+    </shape>
+    <shape type="text" topLeftX="545" topLeftY="273" width="340" height="46">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.5">
+        <p>sensors 表登记 8 种指标编码（TEMP/HUMI/PM25/CO2/PH/TURBIDITY/DO/NOISE），含单位、量程、标准限值，新增类型零代码扩展。</p>
+      </content>
+    </shape>
+
+    <shape type="rect" topLeftX="530" topLeftY="331" width="370" height="78" presetHandlers="4">
+      <fill><fillColor color="rgba(255,255,255,1)"/></fill>
+      <border color="rgba(220,225,235,1)" width="1"/>
+    </shape>
+    <shape type="text" topLeftX="545" topLeftY="339" width="340" height="20">
+      <content textType="body" fontSize="13" color="rgba(37,99,235,1)" textAlign="left" bold="true"><p>两级阈值 + 设备级优先</p></content>
+    </shape>
+    <shape type="text" topLeftX="545" topLeftY="361" width="340" height="42">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.5">
+        <p>thresholds 表 device_id 可空，NULL 表示全局默认阈值；设备级阈值优先于全局。WARN 预警与 ALARM 报警双区间配置。</p>
+      </content>
+    </shape>
+
+    <shape type="rect" topLeftX="530" topLeftY="419" width="370" height="68" presetHandlers="4">
+      <fill><fillColor color="rgba(255,255,255,1)"/></fill>
+      <border color="rgba(220,225,235,1)" width="1"/>
+    </shape>
+    <shape type="text" topLeftX="545" topLeftY="427" width="340" height="20">
+      <content textType="body" fontSize="13" color="rgba(37,99,235,1)" textAlign="left" bold="true"><p>30 分钟防重复告警</p></content>
+    </shape>
+    <shape type="text" topLeftX="545" topLeftY="449" width="340" height="32">
+      <content textType="caption" fontSize="11" color="rgba(83,97,116,1)" textAlign="left" lineSpacing="multiple:1.5">
+        <p>同一设备、同一指标、同一级别 30 分钟内不重复生成告警，业务层判断避免告警风暴。</p>
+      </content>
+    </shape>
+  </data>
+  <note>
+    <content textType="body">
+      <p>数据库设计采用MySQL，库名为nep，字符集utf8mb4，引擎InnoDB，共8张表。左侧是ER关系概览：regions区域表通过一对多关联devices设备表，设备表再关联monitor_data监测数据表，这是核心的主链路；monitor_data通过sensor_code关联sensors指标字典表；devices还关联thresholds阈值表和alerts告警记录表；admins和users是独立的权限表。右侧是四个核心设计决策：第一，monitor_data和alerts用BIGINT自增主键，并建立device_id加report_time的复合索引支撑时序查询；第二，指标字典驱动，sensors表登记8种指标的编码、单位、量程和标准限值，新增监测类型零代码扩展；第三，两级阈值加设备级优先，thresholds表的device_id可空表示全局默认，设备级优先；第四，30分钟防重复告警，同一设备同一指标同一级别30分钟内不重复，避免告警风暴。</p>
+    </content>
+  </note>
+</slide>

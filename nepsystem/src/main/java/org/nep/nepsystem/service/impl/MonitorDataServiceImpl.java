@@ -13,6 +13,9 @@ import org.nep.nepsystem.dao.DevicesDao;
 import org.nep.nepsystem.dao.MonitorDataDao;
 import org.nep.nepsystem.dao.ThresholdsDao;
 import org.nep.nepsystem.exception.BizException;
+import org.nep.nepsystem.service.AlertLifecycleService;
+import org.nep.nepsystem.service.AnomalyDetectionService;
+import org.nep.nepsystem.service.DataQualityService;
 import org.nep.nepsystem.service.MonitorDataService;
 import org.nep.nepsystem.ws.NotifyWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +70,15 @@ public class MonitorDataServiceImpl extends ServiceImpl<MonitorDataDao, MonitorD
     @Autowired
     private NotifyWebSocketHandler notifyWebSocketHandler;
 
+    @Autowired
+    private AlertLifecycleService alertLifecycleService;
+
+    @Autowired
+    private DataQualityService dataQualityService;
+
+    @Autowired
+    private AnomalyDetectionService anomalyDetectionService;
+
     /**
      * 数据上报：写数据 + 更新设备状态 + 阈值告警，整体一个事务
      */
@@ -88,6 +100,8 @@ public class MonitorDataServiceImpl extends ServiceImpl<MonitorDataDao, MonitorD
             Object codeObj = item.get("sensorCode");
             Object valObj = item.get("value");
             if (codeObj == null || valObj == null) {
+                // 业务层升级：NULL 数据质量检测
+                dataQualityService.recordNullValue(device, item);
                 continue;
             }
             MonitorData md = new MonitorData();
@@ -96,6 +110,10 @@ public class MonitorDataServiceImpl extends ServiceImpl<MonitorDataDao, MonitorD
             md.setValue(new BigDecimal(valObj.toString()));
             md.setReportTime(now);
             super.save(md);
+            // 业务层升级：逐指标数据质量检测（超范围/突变/长时间不变化）
+            dataQualityService.checkOnReport(device, codeObj.toString(), md.getValue(), now);
+            // 业务层升级：统计异常检测（Z-Score/连续超标/突变，与阈值引擎并存）
+            anomalyDetectionService.checkOnReport(device, codeObj.toString(), md.getValue(), now);
             // WebSocket 实时广播
             notifyWebSocketHandler.broadcast("{\"type\":\"data\",\"deviceId\":" + device.getId()
                     + ",\"deviceCode\":\"" + deviceCode + "\",\"sensorCode\":\"" + codeObj + "\",\"value\":"
@@ -157,6 +175,8 @@ public class MonitorDataServiceImpl extends ServiceImpl<MonitorDataDao, MonitorD
             desc = sensorCode + " 低于预警下限 " + thr.getWarnMin() + "，当前值 " + value;
         }
         if (level == null) {
+            // 业务层升级：指标回到阈值范围内 -> 自动恢复（NORMAL）
+            alertLifecycleService.autoResolveOnRecovery(device.getId().longValue(), sensorCode, now);
             return;
         }
         // 30 分钟内同设备同指标同级别不重复
@@ -175,6 +195,7 @@ public class MonitorDataServiceImpl extends ServiceImpl<MonitorDataDao, MonitorD
         alert.setDeviceId(device.getId());
         alert.setSensorCode(sensorCode);
         alert.setLevel(level);
+        alert.setState(level);
         alert.setAlertValue(value);
         alert.setMessage(desc);
         alert.setStatus(0);

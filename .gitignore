@@ -1,40 +1,31 @@
-# ============ 敏感信息（绝不提交） ============
-# 本地配置与密钥
-*.properties
-!application.example.properties
-.m2-settings.xml
+# ---- 构建产物 ----
+node_modules/
+dist/
+target/
+*.jar
+!paper/**/*.jar
+
+# ---- 本地缓存 ----
 .m2repo/
 .npm-cache/
-*.key
-*.pem
-.env
-.env.*
-!.env.example
 
-# 日志
+# ---- 日志 ----
 *.log
+app.log
+dev.log
 logs/
 
-# ============ 构建产物 ============
-nepsystem/target/
-nepsystem/app.log
-*.class
-nepsystem-web/node_modules/
-nepsystem-web/dist/
-nepsystem-web/.vite/
-
-# ============ 本地开发过程文档（非项目资产） ============
-*.docx
-开发流程提示词_*.md
-环境总结与VSCode配置.md
-
-# ============ IDE / 系统 ============
+# ---- IDE / 编辑器 ----
 .idea/
 .vscode/
 *.iml
-Thumbs.db
-.DS_Store
 
-# 临时文件
-*.tmp
-COMMIT_MSG*.tmp
+# ---- 系统文件 ----
+.DS_Store
+Thumbs.db
+
+# ---- 自动化工具痕迹 ----
+nepsystem/.github/modernize/
+
+# ---- 数据库导出/临时 ----
+*.sql.tmp
