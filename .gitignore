@@ -29,3 +29,17 @@ nepsystem/.github/modernize/
 
 # ---- 数据库导出/临时 ----
 *.sql.tmp
+
+# ---- 本地配置（真实密码不入库） ----
+application.properties
+application-local.properties
+.env
+.env.*
+!.env.example
+
+# ---- 上传文件 ----
+uploads/
+
+# ---- 运行产物 ----
+*.log
+nepsystem/out/
