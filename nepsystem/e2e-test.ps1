@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # 环境监测保护系统 · 端到端测试（E2E）
 # 覆盖：认证/设备/数据/告警/阈值/统计/用户/指标字典/WebSocket/前端链路
 # 前置：后端 8080 与前端 5173 已启动；测试数据自动清理
@@ -246,7 +246,9 @@ Write-Host ""
 Write-Host "========== 测试数据清理 ==========" -ForegroundColor Cyan
 try {
     $mysql = "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysql.exe"
-    $env:MYSQL_PWD = "124102"
+    # 数据库密码从环境变量读取（Git 发布安全要求；本机可先设置 $env:DB_PASSWORD="124102"）
+    if (-not $env:DB_PASSWORD) { Write-Host "  [跳过清理] 未设置环境变量 DB_PASSWORD（e2e 清理需要数据库密码）" -ForegroundColor Yellow; return }
+    $env:MYSQL_PWD = $env:DB_PASSWORD
     if ($testDevId) {
         & $mysql -uroot -e "USE nep; DELETE FROM monitor_data WHERE device_id = $testDevId; DELETE FROM alerts WHERE device_id = $testDevId; DELETE FROM devices WHERE id = $testDevId;" 2>&1 | Out-Null
         Write-Host "  已清理 E2E 设备及其数据"
