@@ -1,0 +1,39 @@
+/* ============================================================
+   NEPG AQI检测网格员工作端主题（Phase 10）
+   视觉定位：任务工作台 / 醒目橙 / 卡片化 / 移动优先
+   ============================================================ */
+:root {
+  --env-green: #F5A623;
+  --env-green-dim: rgba(245, 166, 35, 0.16);
+  --color-primary: #F5A623;
+  --color-primary-hover: #FFB94D;
+  --color-primary-active: #D98F14;
+  --color-primary-soft: rgba(245, 166, 35, 0.14);
+  --warning: #E5B567;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+}
+
+/* 任务卡片：左缘强调色条 */
+.task-card { position: relative; overflow: hidden; transition: transform 0.18s var(--ease-out), border-color 0.18s var(--ease-out); }
+.task-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--env-green); opacity: 0.8; }
+.task-card:active { transform: scale(0.985); }
+.task-card:hover { border-color: rgba(245, 166, 35, 0.4); }
+
+/* 统计卡：橙色系渐层 */
+.stat-card { transition: transform 0.18s var(--ease-out); }
+.stat-card:active { transform: scale(0.97); }
+
+/* 主按钮大圆角醒目 */
+.nepg-shell .action-btn, .nepg-shell .login-btn, .nepg-shell .submit-btn { border-radius: 14px; font-weight: 700; }
+.nepg-shell .el-button--primary { box-shadow: 0 6px 18px rgba(245, 166, 35, 0.28); }
+
+/* 状态标签圆润 */
+.status-tab { border-radius: 10px; }
+
+/* 空态 */
+.empty { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.empty::before { content: "🧭"; font-size: 28px; opacity: 0.6; }
+
+/* 检测对话框 AQI 高亮 */
+.detect-aqi b { font-size: 22px; margin-left: 4px; }

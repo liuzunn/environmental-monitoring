@@ -1,0 +1,44 @@
+/* ============================================================
+   NEPS 公众服务平台主题（Phase 10）
+   视觉定位：简洁亲和 / 移动端优先 / 圆角大 / 柔和
+   ============================================================ */
+:root {
+  --env-green: #4ECB8D;
+  --env-green-dim: rgba(78, 203, 141, 0.14);
+  --color-primary: #4ECB8D;
+  --color-primary-hover: #6FDCAB;
+  --color-primary-active: #3BB27A;
+  --color-primary-soft: rgba(78, 203, 141, 0.12);
+  --info: #6FA8FF;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-full: 999px;
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+/* 亲和：按钮/输入框更大圆角 */
+.neps-shell .el-button { border-radius: 12px; }
+.neps-shell .el-input__wrapper { border-radius: 12px; }
+.neps-shell .el-textarea__inner { border-radius: 12px; }
+.neps-shell .el-card, .neps-shell .aqi-card, .neps-shell .supervise-entry,
+.neps-shell .mine-card, .neps-shell .section-block, .neps-shell .detail-card,
+.neps-shell .event-card, .neps-shell .msg-item, .neps-shell .task-card { border-radius: 18px; }
+
+/* 卡片入场动画 */
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.home-page .aqi-card, .home-page .supervise-entry, .home-page .mine-card,
+.home-page .section-block { animation: card-in 0.5s var(--ease-out) both; }
+.home-page .section-block:nth-of-type(2) { animation-delay: 0.08s; }
+.home-page .section-block:nth-of-type(3) { animation-delay: 0.16s; }
+
+/* 按压反馈 */
+.supervise-entry:active, .mine-card:active, .event-card:active,
+.msg-item:active, .task-card:active, .upload-add:active { transform: scale(0.98); }
+.supervise-entry, .mine-card, .event-card, .msg-item, .task-card, .upload-add { transition: transform 0.15s var(--ease-out); }
+
+/* 空态图标化 */
+.empty { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.empty::before { content: "🌿"; font-size: 30px; opacity: 0.7; }
