@@ -38,6 +38,14 @@ public class Devices {
     @TableField(value = "location")
     private String location;
 
+    /** 纬度（空间态势升级新增，可空，WGS84） */
+    @TableField(value = "lat")
+    private java.math.BigDecimal lat;
+
+    /** 经度（空间态势升级新增，可空，WGS84） */
+    @TableField(value = "lng")
+    private java.math.BigDecimal lng;
+
     /** 状态: 0离线 1在线 2停用 */
     @TableField(value = "status")
     private Integer status;
@@ -123,4 +131,20 @@ public class Devices {
         this.createTime = createTime;
     }
 
+
+    public java.math.BigDecimal getLat() {
+        return lat;
+    }
+
+    public void setLat(java.math.BigDecimal lat) {
+        this.lat = lat;
+    }
+
+    public java.math.BigDecimal getLng() {
+        return lng;
+    }
+
+    public void setLng(java.math.BigDecimal lng) {
+        this.lng = lng;
+    }
 }

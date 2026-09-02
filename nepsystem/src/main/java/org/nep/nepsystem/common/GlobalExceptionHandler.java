@@ -36,10 +36,16 @@ public class GlobalExceptionHandler {
         return Result.fail(400, msg);
     }
 
-    /** 兜底异常 */
+    /** 上传超限（BUG-002 修复）：返回 400 而非 500 */
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    public Result<?> handleMaxUpload(org.springframework.web.multipart.MaxUploadSizeExceededException e) {
+        return Result.fail(400, "文件大小超过限制（图片最大 5MB）");
+    }
+
+    /** 兜底异常（BUG-004 修复：脱敏，不向客户端泄露堆栈/内部信息；完整异常仍写日志） */
     @ExceptionHandler(Exception.class)
     public Result<?> handleException(Exception e) {
         log.error("系统异常", e);
-        return Result.fail(500, "系统异常: " + e.getMessage());
+        return Result.fail(500, "系统繁忙，请稍后重试");
     }
 }

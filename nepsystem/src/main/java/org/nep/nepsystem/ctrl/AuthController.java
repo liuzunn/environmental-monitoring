@@ -3,6 +3,7 @@ package org.nep.nepsystem.ctrl;
 import org.nep.nepsystem.bean.Admins;
 import org.nep.nepsystem.common.Result;
 import org.nep.nepsystem.dao.AdminsDao;
+import org.nep.nepsystem.common.TokenStore;
 import org.nep.nepsystem.exception.BizException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +37,8 @@ public class AuthController {
         if (admin == null || !admin.getPassword().equals(password)) {
             throw new BizException(401, "账号或密码错误");
         }
-        // 简单 token：UUID（课程设计够用，生产应换 JWT）
-        String token = UUID.randomUUID().toString().replace("-", "");
+        // 签发并登记令牌（BUG-003 修复：有效期 24h，拦截器校验）
+        String token = TokenStore.issue(TokenStore.Kind.ADMIN, admin.getAdminId());
         Map<String, Object> data = new HashMap<>();
         data.put("token", token);
         data.put("adminId", admin.getAdminId());
@@ -45,9 +46,12 @@ public class AuthController {
         return Result.ok("登录成功", data);
     }
 
-    /** 登出 */
+    /** 登出（BUG-003：移除令牌） */
     @PostMapping("/logout")
-    public Result<Void> logout() {
+    public Result<Void> logout(@RequestHeader(value = "Authorization", required = false) String authorization) {
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            TokenStore.remove(authorization.substring("Bearer ".length()).trim());
+        }
         return Result.ok("已退出登录", null);
     }
 }
