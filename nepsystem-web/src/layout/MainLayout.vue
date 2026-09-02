@@ -76,6 +76,7 @@ const menus = [
   { path: '/dashboard', title: '实时监测', icon: 'Odometer' },
   { path: '/history', title: '历史数据', icon: 'TrendCharts' },
   { path: '/devices', title: '设备管理', icon: 'Cpu' },
+  { path: '/situation', title: '空间态势', icon: 'MapLocation' },
   { path: '/alerts', title: '告警中心', icon: 'Bell' },
   { path: '/thresholds', title: '阈值设置', icon: 'SetUp' },
   { path: '/users', title: '用户管理', icon: 'User' }

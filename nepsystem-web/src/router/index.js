@@ -15,6 +15,7 @@ const routes = [
       { path: 'dashboard', name: 'Dashboard', component: () => import('@/views/Dashboard.vue'), meta: { title: '实时监测', icon: 'Odometer' } },
       { path: 'history', name: 'History', component: () => import('@/views/History.vue'), meta: { title: '历史数据', icon: 'TrendCharts' } },
       { path: 'devices', name: 'Devices', component: () => import('@/views/Devices.vue'), meta: { title: '设备管理', icon: 'Cpu' } },
+      { path: 'situation', name: 'Situation', component: () => import('@/views/Situation.vue'), meta: { title: '空间态势', icon: 'MapLocation' } },
       { path: 'alerts', name: 'Alerts', component: () => import('@/views/Alerts.vue'), meta: { title: '告警中心', icon: 'Bell' } },
       { path: 'thresholds', name: 'Thresholds', component: () => import('@/views/Thresholds.vue'), meta: { title: '阈值设置', icon: 'SetUp' } },
       { path: 'users', name: 'Users', component: () => import('@/views/Users.vue'), meta: { title: '用户管理', icon: 'User' } }

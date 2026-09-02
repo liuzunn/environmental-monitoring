@@ -45,3 +45,10 @@ export const changeUserStatus = (id, status) => request.put('/users/' + id + '/s
 
 // ---- 指标字典 ----
 export const getSensors = () => request.get('/sensors')
+
+// ---- 业务监管统计（Phase 8 新增） ----
+export const getSupervisionStats = () => request.get('/stats/supervision')
+
+// ---- 空间态势（空间态势升级新增） ----
+export const getSituationOverview = () => request.get('/situation/overview')
+export const getSituationDevices = (params) => request.get('/situation/devices', { params })

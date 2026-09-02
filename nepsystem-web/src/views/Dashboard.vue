@@ -194,6 +194,73 @@
       </div>
     </section>
 
+    <!-- ═══════ 05 / REGULATION 监管业务（Phase 8 追加，真实业务数据） ═══════ -->
+    <section class="section reg-section">
+      <div class="section-head reveal">
+        <div class="section-label"><span class="num">05</span> / REGULATION</div>
+        <span class="panel-link">真实业务监管数据 · 监督/任务/检测</span>
+      </div>
+
+      <div class="reg-strip reveal">
+        <div v-for="(c, i) in supCards" :key="c.key" class="reg-card" :style="{ transitionDelay: (i * 80) + 'ms' }">
+          <div class="reg-value tabular-nums" :style="{ color: c.color }">{{ c.value }}</div>
+          <div class="reg-label">{{ c.label }}</div>
+        </div>
+      </div>
+
+      <div class="reg-grid">
+        <!-- 区域事件分布 -->
+        <div class="reg-panel reveal">
+          <div class="panel-label">REGION DISTRIBUTION · 区域事件</div>
+          <div v-if="supData.regionDistribution.length" class="reg-list">
+            <div v-for="r in supData.regionDistribution" :key="r.regionName" class="reg-list-item">
+              <span class="reg-list-name">{{ r.regionName }}</span>
+              <span class="reg-list-bar"><span class="reg-list-fill" :style="{ width: barWidth(r.count, maxRegion) + '%' }"></span></span>
+              <span class="reg-list-num tabular-nums">{{ r.count }}</span>
+            </div>
+          </div>
+          <div v-else class="reg-empty">暂无监督事件</div>
+        </div>
+
+        <!-- 污染类型分布 -->
+        <div class="reg-panel reveal" style="transitionDelay: 100ms">
+          <div class="panel-label">TYPE DISTRIBUTION · 污染类型</div>
+          <div ref="regTypeChartRef" class="reg-chart"></div>
+        </div>
+
+        <!-- 网格任务 -->
+        <div class="reg-panel reveal" style="transitionDelay: 200ms">
+          <div class="panel-label">GRID TASKS · 网格任务（完成率）</div>
+          <div v-if="supData.gridTasks.length" class="reg-list">
+            <div v-for="g in supData.gridTasks" :key="g.gridName" class="reg-list-item">
+              <span class="reg-list-name">{{ g.gridName }}</span>
+              <el-progress :percentage="g.completionRate" :stroke-width="6" style="flex: 1; margin: 0 8px;" />
+              <span class="reg-list-num tabular-nums">{{ g.closedTasks }}/{{ g.totalTasks }}</span>
+            </div>
+          </div>
+          <div v-else class="reg-empty">暂无巡检任务</div>
+        </div>
+
+        <!-- 高风险事件 -->
+        <div class="reg-panel reveal" style="transitionDelay: 300ms">
+          <div class="panel-label">HIGH RISK · 高风险事件（ALARM 未关闭）</div>
+          <div v-if="supData.highRiskEvents.length" class="reg-list">
+            <div v-for="h in supData.highRiskEvents" :key="h.id" class="reg-list-item risk-item">
+              <span class="risk-dot"></span>
+              <span class="reg-list-name risk-name">{{ h.title }}</span>
+              <span class="reg-list-num tabular-nums risk-no">{{ h.eventNo }}</span>
+            </div>
+          </div>
+          <div v-else class="reg-empty">暂无高风险事件</div>
+        </div>
+      </div>
+
+      <div class="reg-panel reg-trend reveal">
+        <div class="panel-label">EVENT TREND · 近 7 天事件趋势</div>
+        <div ref="regTrendChartRef" class="reg-chart reg-trend-chart"></div>
+      </div>
+    </section>
+
     <footer class="page-footer">
       <span>ENVISION · ENVIRONMENTAL MONITORING SYSTEM</span>
       <span class="footer-right">© 2026 — DATA COCKPIT</span>
@@ -205,7 +272,7 @@
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
-import { getDevicesPage, getDeviceLatest, getOverview, getUnhandled, getSensors, getHistory, getAlertsStat, getQuality } from '@/api'
+import { getDevicesPage, getDeviceLatest, getOverview, getUnhandled, getSensors, getHistory, getAlertsStat, getQuality, getSupervisionStats } from '@/api'
 import { connectWS, onWSMessage } from '@/utils/ws'
 
 const router = useRouter()
@@ -310,6 +377,72 @@ async function loadQuality() {
     const q = await getQuality()
     if (q && q.overall !== null && q.overall !== undefined) qualityOverall.value = q.overall
   } catch (e) { /* 忽略 */ }
+}
+
+// ---------- Phase 8：真实业务监管数据 ----------
+const supCards = ref([
+  { key: 'todayEvents', label: '今日监督', value: 0, color: '#7CA7FF' },
+  { key: 'pendingReview', label: '待审核', value: 0, color: '#E5B567' },
+  { key: 'processing', label: '处理中', value: 0, color: '#B7A6E8' },
+  { key: 'closedEvents', label: '已完成', value: 0, color: '#7EE2B8' },
+  { key: 'eventHandleRate', label: '处理率%', value: 0, color: '#6FD3C7' }
+])
+const supData = ref({ regionDistribution: [], typeDistribution: [], taskStats: {}, gridTasks: [], highRiskEvents: [], eventTrend: [] })
+const regTypeChartRef = ref()
+const regTrendChartRef = ref()
+let regTypeChart = null
+let regTrendChart = null
+
+async function loadSupCards() {
+  try {
+    const o = await getOverview()
+    for (const c of supCards.value) c.value = o[c.key] ?? 0
+  } catch (e) { /* 忽略 */ }
+}
+
+async function loadSupervisionStats() {
+  try {
+    supData.value = await getSupervisionStats()
+  } catch (e) { /* 忽略 */ }
+  renderRegCharts()
+}
+
+const maxRegion = computed(() => Math.max(1, ...(supData.value.regionDistribution || []).map(r => Number(r.count))))
+function barWidth(v, max) { return Math.max(4, Math.round(Number(v) / max * 100)) }
+
+function renderRegCharts() {
+  // 污染类型分布（环形）
+  if (regTypeChartRef.value) {
+    if (!regTypeChart) regTypeChart = echarts.init(regTypeChartRef.value)
+    const typeMap = { POLLUTION: '污染', NOISE: '噪声', DEVICE_FAULT: '设备故障', OTHER: '其他' }
+    const data = (supData.value.typeDistribution || []).map(d => ({ name: typeMap[d.eventType] || d.eventType, value: Number(d.count) }))
+    regTypeChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: { trigger: 'item', backgroundColor: '#1C2421', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', textStyle: { color: '#E8ECE9', fontSize: 12 } },
+      legend: { bottom: 0, textStyle: { color: '#56615C', fontSize: 10 }, icon: 'circle', itemWidth: 8, itemHeight: 8 },
+      series: [{
+        type: 'pie', radius: ['45%', '68%'], center: ['50%', '44%'],
+        label: { show: false },
+        data,
+        itemStyle: { borderColor: '#141A18', borderWidth: 2 },
+        color: ['#7CA7FF', '#E5B567', '#E26D6D', '#7EE2B8']
+      }]
+    })
+  }
+  // 近7天事件趋势（柱状）
+  if (regTrendChartRef.value) {
+    if (!regTrendChart) regTrendChart = echarts.init(regTrendChartRef.value)
+    const days = (supData.value.eventTrend || []).map(d => String(d.day).slice(5))
+    const counts = (supData.value.eventTrend || []).map(d => Number(d.cnt))
+    regTrendChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: { trigger: 'axis', backgroundColor: '#1C2421', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', textStyle: { color: '#E8ECE9', fontSize: 12 } },
+      grid: { left: 30, right: 10, top: 16, bottom: 22 },
+      xAxis: { type: 'category', data: days, axisLine: { lineStyle: { color: 'rgba(255,255,255,0.12)' } }, axisTick: { show: false }, axisLabel: { color: '#56615C', fontSize: 10 } },
+      yAxis: { type: 'value', minInterval: 1, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } }, axisLabel: { color: '#56615C', fontSize: 10 } },
+      series: [{ type: 'bar', data: counts, barWidth: 14, itemStyle: { color: '#7CA7FF', borderRadius: [4, 4, 0, 0] } }]
+    })
+  }
 }
 
 // ---------- 近 7 天告警趋势 ----------
@@ -549,8 +682,12 @@ onMounted(async () => {
     setInterval(loadOverview, 30000),
     setInterval(loadUnhandled, 30000),
     setInterval(loadAlertTrend, 60000),
-    setInterval(loadQuality, 60000)
+    setInterval(loadQuality, 60000),
+    setInterval(loadSupCards, 30000),
+    setInterval(loadSupervisionStats, 60000)
   ]
+  loadSupCards()
+  loadSupervisionStats()
   clockTimer = setInterval(tick, 1000)
   tick()
   window.addEventListener('resize', onResize)
@@ -574,6 +711,8 @@ function onResize() {
   trendChart?.resize()
   alertTrendChart?.resize()
   spatialChart?.resize()
+  regTypeChart?.resize()
+  regTrendChart?.resize()
   for (const c of Object.values(gaugeCharts)) c?.resize()
 }
 
@@ -586,6 +725,8 @@ onUnmounted(() => {
   trendChart?.dispose()
   alertTrendChart?.dispose()
   spatialChart?.dispose()
+  regTypeChart?.dispose()
+  regTrendChart?.dispose()
   for (const c of Object.values(gaugeCharts)) c?.dispose()
 })
 </script>
@@ -1178,6 +1319,59 @@ onUnmounted(() => {
 .reveal.in {
   opacity: 1;
   transform: none;
+}
+
+/* ═══════════ 05 / 监管业务 ═══════════ */
+.reg-section { padding-bottom: var(--sp-32); }
+.reg-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--sp-16);
+  margin-bottom: var(--sp-24);
+}
+.reg-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-20) var(--sp-16);
+  text-align: center;
+}
+.reg-value { font-size: 34px; font-weight: 700; line-height: 1; }
+.reg-label { margin-top: var(--sp-8); font-size: 11px; letter-spacing: 0.14em; color: var(--text-secondary); }
+
+.reg-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-24);
+  margin-bottom: var(--sp-24);
+}
+.reg-panel {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-20) var(--sp-24);
+  min-width: 0;
+}
+.reg-list { display: flex; flex-direction: column; gap: 10px; }
+.reg-list-item { display: flex; align-items: center; gap: 10px; font-size: 12px; min-width: 0; }
+.reg-list-name { flex-shrink: 0; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-secondary); }
+.reg-list-bar { flex: 1; height: 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.06); overflow: hidden; }
+.reg-list-fill { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #7CA7FF, #7EE2B8); }
+.reg-list-num { flex-shrink: 0; color: var(--text-muted); font-size: 12px; }
+.reg-chart { height: 180px; }
+.reg-trend-chart { height: 180px; }
+.risk-item { gap: 8px; }
+.risk-dot { width: 7px; height: 7px; border-radius: 50%; background: #E26D6D; box-shadow: 0 0 8px rgba(226, 109, 109, 0.6); flex-shrink: 0; }
+.risk-name { color: var(--text-primary); }
+.risk-no { color: var(--text-faint); font-size: 11px; }
+.reg-empty { text-align: center; padding: 28px 0; font-size: 12px; color: var(--text-faint); }
+
+@media (max-width: 1100px) {
+  .reg-grid { grid-template-columns: 1fr; }
+  .reg-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 720px) {
+  .reg-strip { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* ═══════════ 页脚 ═══════════ */
